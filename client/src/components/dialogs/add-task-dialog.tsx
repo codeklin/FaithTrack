@@ -50,7 +50,7 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
       title: "",
       description: "",
       memberId: undefined,
-      assignedTo: "Pastor John Smith",
+      assignedTo: "Pastor Jide",
       priority: "medium",
       status: "pending",
       dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow

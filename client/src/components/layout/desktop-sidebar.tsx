@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { BarChart3, Calendar, Home, LogOut, TrendingUp, Users } from "lucide-react";
+import NotificationSystem from "@/components/notification-system";
 
 export default function DesktopSidebar() {
   const [location] = useLocation();
@@ -62,17 +63,20 @@ export default function DesktopSidebar() {
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3">
             <img 
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" 
-              alt="Pastor John Smith" 
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" 
+              alt="Pastor Jide" 
               className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Pastor John Smith</p>
+              <p className="text-sm font-medium text-gray-900">Pastor Jide</p>
               <p className="text-xs text-gray-500">Lead Pastor</p>
             </div>
-            <button className="text-gray-400 hover:text-gray-600">
-              <LogOut className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <NotificationSystem />
+              <button className="text-gray-400 hover:text-gray-600">
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

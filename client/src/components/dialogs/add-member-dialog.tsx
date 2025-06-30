@@ -41,7 +41,7 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
       phone: "",
       address: "",
       notes: "",
-      assignedStaff: "Pastor John Smith",
+      assignedStaff: "Pastor Jide",
       status: "new",
       avatar: "",
     },

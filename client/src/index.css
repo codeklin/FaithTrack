@@ -75,12 +75,38 @@
 
 @layer utilities {
   .notification-badge {
-    animation: pulse 2s infinite;
+    animation: notificationPulse 2s infinite;
+    font-size: 10px;
+    line-height: 1;
+    min-width: 18px;
+    min-height: 18px;
   }
   
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+  @keyframes notificationPulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Clock alarm animation for urgent notifications */
+  @keyframes bellRing {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30%, 50%, 70%, 90% { transform: rotate(15deg); }
+    20%, 40%, 60%, 80% { transform: rotate(-15deg); }
+  }
+
+  .notification-bell-urgent {
+    animation: bellRing 1s ease-in-out infinite;
   }
   
   .task-priority-high {

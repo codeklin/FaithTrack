@@ -84,7 +84,7 @@ export class MemStorage implements IStorage {
         inBibleStudy: true,
         inSmallGroup: false,
         notes: "Very enthusiastic about faith. Baptism scheduled for next week.",
-        assignedStaff: "Pastor John Smith",
+        assignedStaff: "Pastor Jide",
         status: "contacted",
         avatar: "https://pixabay.com/get/g596c4e9d79430f2f0ac339ac424a1468679903994350d900f58333663b80021ccd2ee4eba2d36d1043a9006141f839b24d5ac282b6f01c2d73be074ec09a89ef_1280.jpg"
       },
@@ -99,7 +99,7 @@ export class MemStorage implements IStorage {
         inBibleStudy: true,
         inSmallGroup: false,
         notes: "Has questions about Bible study material. Needs follow-up call.",
-        assignedStaff: "Pastor John Smith",
+        assignedStaff: "Pastor Jide",
         status: "contacted",
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
       },
@@ -114,7 +114,7 @@ export class MemStorage implements IStorage {
         inBibleStudy: true,
         inSmallGroup: true,
         notes: "Active in small group. Great progress in spiritual journey.",
-        assignedStaff: "Pastor John Smith",
+        assignedStaff: "Pastor Jide",
         status: "active",
         avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
       }
@@ -131,10 +131,10 @@ export class MemStorage implements IStorage {
         title: "Follow-up call with Michael Chen",
         description: "Discuss Bible study progress and address questions",
         memberId: 2,
-        assignedTo: "Pastor John Smith",
+        assignedTo: "Pastor Jide",
         priority: "high",
         status: "pending",
-        dueDate: new Date(), // Today
+        dueDate: new Date(Date.now() + 1 * 60 * 60 * 1000), // Due in 1 hour
         completedDate: null,
         reminderSent: false
       },
@@ -142,10 +142,10 @@ export class MemStorage implements IStorage {
         title: "Schedule baptism for Sarah Johnson",
         description: "Coordinate with baptism team and family",
         memberId: 1,
-        assignedTo: "Pastor John Smith",
+        assignedTo: "Pastor Jide",
         priority: "medium",
         status: "pending",
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+        dueDate: new Date(Date.now() - 30 * 60 * 1000), // Overdue by 30 minutes
         completedDate: null,
         reminderSent: false
       },
@@ -153,7 +153,7 @@ export class MemStorage implements IStorage {
         title: "Send welcome package to Maria Rodriguez",
         description: "Include study materials and church information",
         memberId: 3,
-        assignedTo: "Pastor John Smith",
+        assignedTo: "Pastor Jide",
         priority: "low",
         status: "pending",
         dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Friday

@@ -50,7 +50,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h2>
-                <p className="text-gray-600 mt-1">Welcome back, Pastor Smith. Here's what's happening with your congregation.</p>
+                <p className="text-gray-600 mt-1">Welcome back, Pastor Jide. Here's what's happening with your congregation.</p>
               </div>
               <div className="mt-4 sm:mt-0">
                 <Button onClick={() => setShowAddMember(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
