@@ -1,4 +1,6 @@
-import { members, tasks, followUps, users, type Member, type InsertMember, type Task, type InsertTask, type FollowUp, type InsertFollowUp, type User, type InsertUser } from "@shared/schema";
+import { users, members, tasks, followUps, type User, type InsertUser, type Member, type InsertMember, type Task, type InsertTask, type FollowUp, type InsertFollowUp } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, lte, count, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -46,302 +48,196 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private members: Map<number, Member>;
-  private tasks: Map<number, Task>;
-  private followUps: Map<number, FollowUp>;
-  private users: Map<number, User>;
-  private currentMemberId: number;
-  private currentTaskId: number;
-  private currentFollowUpId: number;
-  private currentUserId: number;
-
-  constructor() {
-    this.members = new Map();
-    this.tasks = new Map();
-    this.followUps = new Map();
-    this.users = new Map();
-    this.currentMemberId = 1;
-    this.currentTaskId = 1;
-    this.currentFollowUpId = 1;
-    this.currentUserId = 1;
-
-    // Initialize with sample data
-    this.initializeSampleData();
-  }
-
-  private initializeSampleData() {
-    // Add sample members
-    const sampleMembers: Array<Omit<Member, 'id'>> = [
-      {
-        name: "Sarah Johnson",
-        email: "sarah.johnson@email.com",
-        phone: "(555) 123-4567",
-        address: "123 Faith St, City, ST 12345",
-        convertedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        baptized: false,
-        baptismDate: null,
-        inBibleStudy: true,
-        inSmallGroup: false,
-        notes: "Very enthusiastic about faith. Baptism scheduled for next week.",
-        assignedStaff: "Pastor Jide",
-        status: "contacted",
-        avatar: "https://pixabay.com/get/g596c4e9d79430f2f0ac339ac424a1468679903994350d900f58333663b80021ccd2ee4eba2d36d1043a9006141f839b24d5ac282b6f01c2d73be074ec09a89ef_1280.jpg"
-      },
-      {
-        name: "Michael Chen",
-        email: "michael.chen@email.com",
-        phone: "(555) 234-5678",
-        address: "456 Hope Ave, City, ST 12345",
-        convertedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-        baptized: false,
-        baptismDate: null,
-        inBibleStudy: true,
-        inSmallGroup: false,
-        notes: "Has questions about Bible study material. Needs follow-up call.",
-        assignedStaff: "Pastor Jide",
-        status: "contacted",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
-      },
-      {
-        name: "Maria Rodriguez",
-        email: "maria.rodriguez@email.com",
-        phone: "(555) 345-6789",
-        address: "789 Grace Blvd, City, ST 12345",
-        convertedDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 2 weeks ago
-        baptized: true,
-        baptismDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        inBibleStudy: true,
-        inSmallGroup: true,
-        notes: "Active in small group. Great progress in spiritual journey.",
-        assignedStaff: "Pastor Jide",
-        status: "active",
-        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
-      }
-    ];
-
-    sampleMembers.forEach((member) => {
-      const id = this.currentMemberId++;
-      this.members.set(id, { ...member, id });
-    });
-
-    // Add sample tasks
-    const sampleTasks: Array<Omit<Task, 'id' | 'createdAt'>> = [
-      {
-        title: "Follow-up call with Michael Chen",
-        description: "Discuss Bible study progress and address questions",
-        memberId: 2,
-        assignedTo: "Pastor Jide",
-        priority: "high",
-        status: "pending",
-        dueDate: new Date(Date.now() + 1 * 60 * 60 * 1000), // Due in 1 hour
-        completedDate: null,
-        reminderSent: false
-      },
-      {
-        title: "Schedule baptism for Sarah Johnson",
-        description: "Coordinate with baptism team and family",
-        memberId: 1,
-        assignedTo: "Pastor Jide",
-        priority: "medium",
-        status: "pending",
-        dueDate: new Date(Date.now() - 30 * 60 * 1000), // Overdue by 30 minutes
-        completedDate: null,
-        reminderSent: false
-      },
-      {
-        title: "Send welcome package to Maria Rodriguez",
-        description: "Include study materials and church information",
-        memberId: 3,
-        assignedTo: "Pastor Jide",
-        priority: "low",
-        status: "pending",
-        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Friday
-        completedDate: null,
-        reminderSent: false
-      }
-    ];
-
-    sampleTasks.forEach((task) => {
-      const id = this.currentTaskId++;
-      this.tasks.set(id, { ...task, id, createdAt: new Date() });
-    });
-  }
-
-  // User methods
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
-  // Member methods
   async getMembers(): Promise<Member[]> {
-    return Array.from(this.members.values()).sort((a, b) => 
-      new Date(b.convertedDate).getTime() - new Date(a.convertedDate).getTime()
-    );
+    return await db.select().from(members).orderBy(desc(members.convertedDate));
   }
 
   async getMember(id: number): Promise<Member | undefined> {
-    return this.members.get(id);
+    const [member] = await db.select().from(members).where(eq(members.id, id));
+    return member || undefined;
   }
 
   async createMember(member: InsertMember): Promise<Member> {
-    const id = this.currentMemberId++;
-    const newMember: Member = { 
-      ...member, 
-      id, 
-      convertedDate: new Date(),
-      baptized: false,
-      baptismDate: null,
-      inBibleStudy: false,
-      inSmallGroup: false
-    };
-    this.members.set(id, newMember);
+    const [newMember] = await db
+      .insert(members)
+      .values(member)
+      .returning();
     return newMember;
   }
 
-  async updateMember(id: number, memberUpdate: Partial<InsertMember>): Promise<Member | undefined> {
-    const existing = this.members.get(id);
-    if (!existing) return undefined;
-    
-    const updated = { ...existing, ...memberUpdate };
-    this.members.set(id, updated);
-    return updated;
+  async updateMember(id: number, member: Partial<InsertMember>): Promise<Member | undefined> {
+    const [updatedMember] = await db
+      .update(members)
+      .set(member)
+      .where(eq(members.id, id))
+      .returning();
+    return updatedMember || undefined;
   }
 
   async deleteMember(id: number): Promise<boolean> {
-    return this.members.delete(id);
+    // Delete related tasks and follow-ups first
+    await db.delete(tasks).where(eq(tasks.memberId, id));
+    await db.delete(followUps).where(eq(followUps.memberId, id));
+    
+    const result = await db.delete(members).where(eq(members.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async getRecentMembers(limit: number = 5): Promise<Member[]> {
-    const allMembers = Array.from(this.members.values());
-    return allMembers
-      .sort((a, b) => new Date(b.convertedDate).getTime() - new Date(a.convertedDate).getTime())
-      .slice(0, limit);
+    return await db
+      .select()
+      .from(members)
+      .orderBy(desc(members.convertedDate))
+      .limit(limit);
   }
 
-  // Task methods
   async getTasks(): Promise<Task[]> {
-    return Array.from(this.tasks.values()).sort((a, b) => 
-      new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-    );
+    return await db.select().from(tasks).orderBy(desc(tasks.createdAt));
   }
 
   async getTask(id: number): Promise<Task | undefined> {
-    return this.tasks.get(id);
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task || undefined;
   }
 
   async createTask(task: InsertTask): Promise<Task> {
-    const id = this.currentTaskId++;
-    const newTask: Task = { 
-      ...task, 
-      id, 
-      createdAt: new Date(),
-      completedDate: null,
-      reminderSent: false
-    };
-    this.tasks.set(id, newTask);
+    const [newTask] = await db
+      .insert(tasks)
+      .values(task)
+      .returning();
     return newTask;
   }
 
-  async updateTask(id: number, taskUpdate: Partial<InsertTask>): Promise<Task | undefined> {
-    const existing = this.tasks.get(id);
-    if (!existing) return undefined;
-    
-    const updated = { ...existing, ...taskUpdate };
-    this.tasks.set(id, updated);
-    return updated;
+  async updateTask(id: number, task: Partial<InsertTask>): Promise<Task | undefined> {
+    const [updatedTask] = await db
+      .update(tasks)
+      .set(task)
+      .where(eq(tasks.id, id))
+      .returning();
+    return updatedTask || undefined;
   }
 
   async deleteTask(id: number): Promise<boolean> {
-    return this.tasks.delete(id);
+    const result = await db.delete(tasks).where(eq(tasks.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async getTasksByMember(memberId: number): Promise<Task[]> {
-    return Array.from(this.tasks.values()).filter(task => task.memberId === memberId);
+    return await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.memberId, memberId))
+      .orderBy(desc(tasks.createdAt));
   }
 
   async getUrgentTasks(): Promise<Task[]> {
     const now = new Date();
-    return Array.from(this.tasks.values())
-      .filter(task => task.status === 'pending' && (task.dueDate <= now || task.priority === 'high'))
-      .sort((a, b) => {
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder];
-      });
+    return await db
+      .select()
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.status, "pending"),
+          lte(tasks.dueDate, now)
+        )
+      )
+      .orderBy(tasks.dueDate);
   }
 
   async getPendingTasks(): Promise<Task[]> {
-    return Array.from(this.tasks.values()).filter(task => task.status === 'pending');
+    return await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.status, "pending"))
+      .orderBy(tasks.dueDate);
   }
 
   async completeTask(id: number): Promise<Task | undefined> {
-    const task = this.tasks.get(id);
-    if (!task) return undefined;
-    
-    const updated = { ...task, status: 'completed' as const, completedDate: new Date() };
-    this.tasks.set(id, updated);
-    return updated;
+    const [completedTask] = await db
+      .update(tasks)
+      .set({ 
+        status: "completed",
+        completedDate: new Date()
+      })
+      .where(eq(tasks.id, id))
+      .returning();
+    return completedTask || undefined;
   }
 
-  // Follow-up methods
   async getFollowUps(): Promise<FollowUp[]> {
-    return Array.from(this.followUps.values());
+    return await db.select().from(followUps).orderBy(desc(followUps.scheduledDate));
   }
 
   async getFollowUp(id: number): Promise<FollowUp | undefined> {
-    return this.followUps.get(id);
+    const [followUp] = await db.select().from(followUps).where(eq(followUps.id, id));
+    return followUp || undefined;
   }
 
   async createFollowUp(followUp: InsertFollowUp): Promise<FollowUp> {
-    const id = this.currentFollowUpId++;
-    const newFollowUp: FollowUp = { 
-      ...followUp, 
-      id, 
-      createdAt: new Date(),
-      completedDate: null
-    };
-    this.followUps.set(id, newFollowUp);
+    const [newFollowUp] = await db
+      .insert(followUps)
+      .values(followUp)
+      .returning();
     return newFollowUp;
   }
 
-  async updateFollowUp(id: number, followUpUpdate: Partial<InsertFollowUp>): Promise<FollowUp | undefined> {
-    const existing = this.followUps.get(id);
-    if (!existing) return undefined;
-    
-    const updated = { ...existing, ...followUpUpdate };
-    this.followUps.set(id, updated);
-    return updated;
+  async updateFollowUp(id: number, followUp: Partial<InsertFollowUp>): Promise<FollowUp | undefined> {
+    const [updatedFollowUp] = await db
+      .update(followUps)
+      .set(followUp)
+      .where(eq(followUps.id, id))
+      .returning();
+    return updatedFollowUp || undefined;
   }
 
   async deleteFollowUp(id: number): Promise<boolean> {
-    return this.followUps.delete(id);
+    const result = await db.delete(followUps).where(eq(followUps.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async getFollowUpsByMember(memberId: number): Promise<FollowUp[]> {
-    return Array.from(this.followUps.values()).filter(followUp => followUp.memberId === memberId);
+    return await db
+      .select()
+      .from(followUps)
+      .where(eq(followUps.memberId, memberId))
+      .orderBy(desc(followUps.scheduledDate));
   }
 
   async getUpcomingFollowUps(): Promise<FollowUp[]> {
     const now = new Date();
-    return Array.from(this.followUps.values())
-      .filter(followUp => !followUp.completedDate && followUp.scheduledDate >= now)
-      .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    
+    return await db
+      .select()
+      .from(followUps)
+      .where(
+        and(
+          lte(followUps.scheduledDate, tomorrow),
+          isNull(followUps.completedDate)
+        )
+      )
+      .orderBy(followUps.scheduledDate);
   }
 
-  // Stats methods
   async getStats(): Promise<{
     newConverts: number;
     pendingFollowups: number;
@@ -351,21 +247,34 @@ export class MemStorage implements IStorage {
     inBibleStudy: number;
     inSmallGroup: number;
   }> {
-    const allMembers = Array.from(this.members.values());
-    const allTasks = Array.from(this.tasks.values());
-    
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    
+    const [
+      newConvertsResult,
+      pendingFollowupsResult,
+      completedTasksResult,
+      activeMembersResult,
+      baptizedResult,
+      inBibleStudyResult,
+      inSmallGroupResult
+    ] = await Promise.all([
+      db.select({ count: count() }).from(members),
+      db.select({ count: count() }).from(tasks).where(eq(tasks.status, "pending")),
+      db.select({ count: count() }).from(tasks).where(eq(tasks.status, "completed")),
+      db.select({ count: count() }).from(members).where(eq(members.status, "active")),
+      db.select({ count: count() }).from(members).where(eq(members.baptized, true)),
+      db.select({ count: count() }).from(members).where(eq(members.inBibleStudy, true)),
+      db.select({ count: count() }).from(members).where(eq(members.inSmallGroup, true))
+    ]);
+
     return {
-      newConverts: allMembers.length,
-      pendingFollowups: allTasks.filter(task => task.status === 'pending').length,
-      completedTasks: allTasks.filter(task => task.status === 'completed' && task.completedDate && task.completedDate >= thirtyDaysAgo).length,
-      activeMembers: allMembers.length,
-      baptized: allMembers.filter(member => member.baptized).length,
-      inBibleStudy: allMembers.filter(member => member.inBibleStudy).length,
-      inSmallGroup: allMembers.filter(member => member.inSmallGroup).length
+      newConverts: newConvertsResult[0]?.count || 0,
+      pendingFollowups: pendingFollowupsResult[0]?.count || 0,
+      completedTasks: completedTasksResult[0]?.count || 0,
+      activeMembers: activeMembersResult[0]?.count || 0,
+      baptized: baptizedResult[0]?.count || 0,
+      inBibleStudy: inBibleStudyResult[0]?.count || 0,
+      inSmallGroup: inSmallGroupResult[0]?.count || 0,
     };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

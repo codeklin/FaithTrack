@@ -46,15 +46,16 @@ FaithTrack is a modern Progressive Web App (PWA) designed for church congregatio
 - **Reporting**: Data export and analytics
 
 ### Backend Services
-- **Storage Layer**: Abstracted storage interface with in-memory implementation
+- **Storage Layer**: Abstracted storage interface with PostgreSQL database implementation
 - **API Routes**: RESTful endpoints for all CRUD operations
+- **Database**: PostgreSQL with Drizzle ORM for data persistence
 - **Middleware**: Request logging, error handling, and JSON parsing
 
 ## Data Flow
 
 1. **Client Requests**: React components initiate API calls through TanStack Query
 2. **API Processing**: Express routes handle requests, validate data with Zod schemas
-3. **Data Access**: Storage layer abstracts database operations (currently in-memory)
+3. **Data Access**: Storage layer abstracts database operations using PostgreSQL
 4. **Response**: JSON responses with proper error handling and status codes
 5. **Client Update**: Query client manages cache invalidation and UI updates
 
@@ -95,8 +96,8 @@ FaithTrack is a modern Progressive Web App (PWA) designed for church congregatio
 
 ## Changelog
 
-Changelog:
-- June 30, 2025. Initial setup
+- June 30, 2025: Database migration completed - Successfully migrated from in-memory storage to PostgreSQL database with proper schema, relations, and sample data seeding
+- June 30, 2025: Initial setup
 
 ## User Preferences
 
