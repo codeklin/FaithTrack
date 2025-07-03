@@ -1,4 +1,4 @@
-# ChurchCare - Church Member Care System
+# FaithTraka - Church Member Care System
 
 A comprehensive Progressive Web Application designed to help churches track and support newly converted members through their spiritual journey with automated follow-ups, task management, and progress tracking.
 
