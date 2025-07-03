@@ -11,7 +11,7 @@ export default function MobileHeader() {
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">FaithTrack</h1>
+            <h1 className="text-lg font-bold text-gray-900">ChurchCare</h1>
           </div>
         </div>
         <NotificationSystem />

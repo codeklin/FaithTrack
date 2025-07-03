@@ -25,7 +25,7 @@ export default function DesktopSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">FaithTrack</h1>
+              <h1 className="text-xl font-bold text-gray-900">ChurchCare</h1>
               <p className="text-sm text-gray-500">Member Care System</p>
             </div>
           </div>

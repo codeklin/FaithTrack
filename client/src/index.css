@@ -32,13 +32,13 @@
   --chart-5: hsl(27, 87%, 67%);
 
   /* Custom colors for church app */
-  --faith-primary: hsl(239, 84%, 67%);
-  --faith-secondary: hsl(158, 64%, 52%);
-  --faith-accent: hsl(45, 93%, 47%);
-  --faith-neutral: hsl(224, 71.4%, 4.1%);
-  --faith-success: hsl(142, 76%, 36%);
-  --faith-warning: hsl(45, 93%, 47%);
-  --faith-error: hsl(0, 84%, 60%);
+  --church-primary: hsl(239, 84%, 67%);
+  --church-secondary: hsl(158, 64%, 52%);
+  --church-accent: hsl(45, 93%, 47%);
+  --church-neutral: hsl(224, 71.4%, 4.1%);
+  --church-success: hsl(142, 76%, 36%);
+  --church-warning: hsl(45, 93%, 47%);
+  --church-error: hsl(0, 84%, 60%);
 }
 
 .dark {

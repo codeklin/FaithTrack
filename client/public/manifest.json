@@ -1,6 +1,6 @@
 {
-  "name": "FaithTrack - Church Member Care System",
-  "short_name": "FaithTrack",
+  "name": "ChurchCare - Church Member Care System",
+  "short_name": "ChurchCare",
   "description": "A Progressive Web App for church congregation management focused on tracking and supporting newly converted members with automated follow-ups and reminders.",
   "start_url": "/",
   "display": "standalone",
@@ -26,7 +26,7 @@
   ],
   "screenshots": [
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjZjlmYWZiIi8+CjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjI4OCIgaGVpZ2h0PSI1MzYiIHJ4PSI4IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjZTVlN2ViIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMjg0IiBmaWxsPSIjNEY0NkU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiPkZhaXRoVHJhY2s8L3RleHQ+CjwvdXZnPg==",
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjZjlmYWZiIi8+CjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjI4OCIgaGVpZ2h0PSI1MzYiIHJ4PSI4IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjZTVlN2ViIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMjg0IiBmaWxsPSIjNEY0NkU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiPkNodXJjaENhcmU8L3RleHQ+CjwvdXZnPg==",
       "sizes": "320x568",
       "type": "image/svg+xml",
       "form_factor": "narrow"

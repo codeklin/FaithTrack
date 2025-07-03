@@ -1,5 +1,5 @@
-const CACHE_NAME = 'faithtrack-v1';
-const STATIC_CACHE_NAME = 'faithtrack-static-v1';
+const CACHE_NAME = 'churchcare-v1';
+const STATIC_CACHE_NAME = 'churchcare-static-v1';
 
 // Resources to cache for offline functionality
 const STATIC_RESOURCES = [
@@ -269,7 +269,7 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     
     const options = {
-      body: data.body || 'You have a new notification from FaithTrack',
+      body: data.body || 'You have a new notification from ChurchCare',
       icon: '/favicon.ico',
       badge: '/favicon.ico',
       vibrate: [200, 100, 200],
@@ -287,12 +287,12 @@ self.addEventListener('push', (event) => {
         }
       ],
       requireInteraction: data.urgent || false,
-      tag: data.tag || 'faithtrack-notification'
+      tag: data.tag || 'churchcare-notification'
     };
     
     event.waitUntil(
       self.registration.showNotification(
-        data.title || 'FaithTrack Notification',
+        data.title || 'ChurchCare Notification',
         options
       )
     );
