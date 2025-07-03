@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Filter } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import DesktopSidebar from "@/components/layout/desktop-sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNavigation from "@/components/layout/mobile-navigation";
@@ -13,17 +14,21 @@ import type { Task } from "@shared/firestore-schema";
 
 export default function Tasks() {
   const [showAddTask, setShowAddTask] = useState(false);
+  const { currentUser } = useAuth();
 
   const { data: allTasks, isLoading: allTasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
+    enabled: !!currentUser,
   });
 
   const { data: urgentTasks, isLoading: urgentTasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks/urgent"],
+    enabled: !!currentUser,
   });
 
   const { data: pendingTasks, isLoading: pendingTasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks/pending"],
+    enabled: !!currentUser,
   });
 
   const completedTasks = allTasks?.filter(task => task.status === 'completed') || [];

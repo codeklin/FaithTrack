@@ -33,7 +33,7 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<InsertMember>({
     resolver: zodResolver(insertMemberSchema),
     defaultValues: {
       name: "",
@@ -42,9 +42,9 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
       address: "",
       notes: "",
       assignedStaff: "Pastor Jide",
-      status: "new",
+      status: "new" as const,
       avatar: "",
-      membershipStatus: "pending",
+      membershipStatus: "pending" as const,
       convertedDate: new Date(),
       baptized: false,
       inBibleStudy: false,

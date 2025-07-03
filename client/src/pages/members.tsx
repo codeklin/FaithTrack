@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, UserPlus, Search } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import DesktopSidebar from "@/components/layout/desktop-sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNavigation from "@/components/layout/mobile-navigation";
@@ -14,9 +15,11 @@ import type { Member } from "@shared/firestore-schema";
 export default function Members() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const { currentUser } = useAuth();
 
   const { data: members, isLoading } = useQuery<Member[]>({
     queryKey: ["/api/members"],
+    enabled: !!currentUser,
   });
 
   const filteredMembers = members?.filter(member =>

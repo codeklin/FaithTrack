@@ -46,15 +46,15 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
     queryFn: () => apiRequest('GET', '/api/members'),
   });
 
-  const form = useForm({
+  const form = useForm<InsertTask>({
     resolver: zodResolver(insertTaskSchema),
     defaultValues: {
       title: "",
       description: "",
       memberId: undefined,
       assignedTo: "Pastor Jide",
-      priority: "medium",
-      status: "pending",
+      priority: "medium" as const,
+      status: "pending" as const,
       dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
     },
   });
@@ -136,7 +136,7 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Member</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                    <Select onValueChange={(value) => field.onChange(value)} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a member" />
