@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -22,7 +22,9 @@ export const auth = getAuth(app);
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
 
-// Connect to emulators in development
+// Emulator connections disabled - using production Firebase services
+// To enable emulators for development, uncomment the code below and ensure emulators are running
+/*
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   // Only connect to emulators in browser environment and development
   try {
@@ -43,5 +45,6 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
     console.log('Firestore emulator already connected or not available');
   }
 }
+*/
 
 export default app;
