@@ -107,16 +107,28 @@ export class FirestoreStorage {
   }
 
   async createMember(memberData: InsertMember): Promise<Member> {
-    const membersRef = adminDb.collection(COLLECTIONS.MEMBERS);
-    const preparedData = prepareForFirestore(memberData);
-    const docRef = await membersRef.add(preparedData);
-    
-    const newMember = await this.getMember(docRef.id);
-    if (!newMember) {
-      throw new Error('Failed to create member');
+    try {
+      console.log('Creating member in Firestore with data:', memberData);
+
+      const membersRef = adminDb.collection(COLLECTIONS.MEMBERS);
+      const preparedData = prepareForFirestore(memberData);
+
+      console.log('Prepared data for Firestore:', preparedData);
+
+      const docRef = await membersRef.add(preparedData);
+      console.log('Created document with ID:', docRef.id);
+
+      const newMember = await this.getMember(docRef.id);
+      if (!newMember) {
+        throw new Error('Failed to retrieve created member');
+      }
+
+      console.log('Successfully created member:', newMember);
+      return newMember;
+    } catch (error) {
+      console.error('Error in createMember:', error);
+      throw new Error(`Failed to create member: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    
-    return newMember;
   }
 
   async updateMember(id: string, memberData: UpdateMember): Promise<Member> {

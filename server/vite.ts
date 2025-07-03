@@ -76,7 +76,27 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static files with proper headers for PWA
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, path) => {
+      // Set proper MIME types for PWA files
+      if (path.endsWith('.webmanifest') || path.endsWith('manifest.json')) {
+        res.setHeader('Content-Type', 'application/manifest+json');
+      }
+      if (path.endsWith('.svg')) {
+        res.setHeader('Content-Type', 'image/svg+xml');
+      }
+      // Cache control for different file types
+      if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=0'); // No cache for HTML
+      }
+    }
+  }));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {

@@ -7,11 +7,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth, AuthProvider } from "./contexts/AuthContext";
 import { Logo } from "@/components/ui/logo";
 import Login from "@/pages/Login";
+import PWAInstallPrompt from "@/components/pwa-install-prompt";
 
 // Lazy load protected components to prevent them from being loaded when not authenticated
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Members = lazy(() => import("@/pages/members"));
 const Tasks = lazy(() => import("@/pages/tasks"));
+const Analytics = lazy(() => import("@/pages/analytics"));
 const Progress = lazy(() => import("@/pages/progress"));
 const Reports = lazy(() => import("@/pages/reports"));
 const NotFound = lazy(() => import("@/pages/not-found"));
@@ -52,7 +54,7 @@ function Router() {
         <Route path="/members" component={Members} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/progress" component={Progress} />
-        <Route path="/reports" component={Reports} />
+        <Route path="/analytics" component={Analytics} />
         <Route component={NotFound} />
       </Switch>
     </Suspense>
@@ -66,6 +68,7 @@ function App() {
         <AuthProvider>
           <Toaster />
           <Router />
+          <PWAInstallPrompt />
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

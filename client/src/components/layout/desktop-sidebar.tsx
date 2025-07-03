@@ -11,7 +11,7 @@ export default function DesktopSidebar() {
     { name: 'Members', href: '/members', icon: Users, current: location === '/members', badge: 23 },
     { name: 'Follow-ups', href: '/tasks', icon: Calendar, current: location === '/tasks', badge: 7, notification: true },
     { name: 'Progress', href: '/progress', icon: TrendingUp, current: location === '/progress' },
-    { name: 'Reports', href: '/reports', icon: BarChart3, current: location === '/reports' },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3, current: location === '/analytics' },
   ];
 
   return (

@@ -25,6 +25,8 @@ export default function Dashboard() {
     queryKey: ["/api/stats"],
     queryFn: () => apiRequest('GET', '/api/stats'),
     enabled: !!currentUser,
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    staleTime: 10000, // Consider data stale after 10 seconds
   });
 
   const { data: recentMembers, isLoading: membersLoading } = useQuery<Member[]>({
@@ -75,34 +77,58 @@ export default function Dashboard() {
             <StatsCard
               title="New Converts"
               value={stats?.newConverts || 0}
-              subtitle="+5 this week"
+              subtitle="This week"
               icon={Users}
               iconColor="text-blue-600"
               iconBg="bg-blue-100"
+              trend={{
+                value: 25,
+                isPositive: true,
+                period: "vs last week"
+              }}
+              isLoading={statsLoading}
             />
             <StatsCard
               title="Pending Follow-ups"
               value={stats?.pendingFollowups || 0}
-              subtitle="3 overdue"
+              subtitle="Need attention"
               icon={Clock}
               iconColor="text-amber-600"
               iconBg="bg-amber-100"
+              trend={{
+                value: 15,
+                isPositive: false,
+                period: "vs last week"
+              }}
+              isLoading={statsLoading}
             />
             <StatsCard
               title="Completed This Month"
               value={stats?.completedTasks || 0}
-              subtitle="85% completion rate"
+              subtitle="Task completion"
               icon={CheckCircle}
               iconColor="text-green-600"
               iconBg="bg-green-100"
+              trend={{
+                value: 12,
+                isPositive: true,
+                period: "vs last month"
+              }}
+              isLoading={statsLoading}
             />
             <StatsCard
               title="Active Members"
               value={stats?.activeMembers || 0}
-              subtitle="+12% growth"
+              subtitle="Community growth"
               icon={TrendingUp}
-              iconColor="text-amber-600"
-              iconBg="bg-amber-100"
+              iconColor="text-purple-600"
+              iconBg="bg-purple-100"
+              trend={{
+                value: 18,
+                isPositive: true,
+                period: "this quarter"
+              }}
+              isLoading={statsLoading}
             />
           </div>
 

@@ -11,7 +11,7 @@ export default function MobileNavigation({ activeTab }: MobileNavigationProps) {
     { name: 'Members', href: '/members', icon: Users, id: 'members', badge: 23 },
     { name: 'Tasks', href: '/tasks', icon: Calendar, id: 'tasks', badge: 7, notification: true },
     { name: 'Progress', href: '/progress', icon: TrendingUp, id: 'progress' },
-    { name: 'Reports', href: '/reports', icon: BarChart3, id: 'reports' },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3, id: 'analytics' },
   ];
 
   return (

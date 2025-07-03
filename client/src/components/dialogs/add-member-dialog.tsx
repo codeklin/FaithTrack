@@ -54,9 +54,11 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
 
   const createMemberMutation = useMutation({
     mutationFn: async (data: InsertMember) => {
+      console.log('Submitting member data:', data);
       return apiRequest('POST', '/api/members', data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Member created successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/members'] });
       queryClient.invalidateQueries({ queryKey: ['/api/members/recent'] });
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
@@ -67,10 +69,22 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
       form.reset();
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Error creating member:', error);
+
+      let errorMessage = "Failed to add member. Please try again.";
+
+      if (error?.response?.data?.details) {
+        errorMessage = `Validation errors: ${error.response.data.details.join(', ')}`;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Error",
-        description: "Failed to add member. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

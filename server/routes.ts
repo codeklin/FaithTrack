@@ -73,14 +73,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/members", requireAuth, async (req, res) => {
     try {
+      console.log('Creating member with data:', req.body);
       const memberData = insertMemberSchema.parse(req.body);
+      console.log('Parsed member data:', memberData);
+
       const member = await storage.createMember(memberData);
+      console.log('Created member:', member);
+
       res.status(201).json(member);
     } catch (error) {
+      console.error('Error creating member:', error);
+
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid member data", errors: error.errors });
+        return res.status(400).json({
+          message: "Invalid member data",
+          errors: error.errors,
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        });
       }
-      res.status(500).json({ message: "Failed to create member" });
+
+      res.status(500).json({
+        message: "Failed to create member",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
@@ -243,6 +258,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Analytics route
+  app.get("/api/analytics", requireAuth, async (req, res) => {
+    try {
+      const range = req.query.range as string || '30d';
+      const members = await storage.getMembers();
+      const tasks = await storage.getTasks();
+      const followUps = await storage.getFollowUps();
+
+      // Calculate date range
+      const now = new Date();
+      let startDate = new Date();
+
+      switch (range) {
+        case '7d':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case '30d':
+          startDate.setDate(now.getDate() - 30);
+          break;
+        case '90d':
+          startDate.setDate(now.getDate() - 90);
+          break;
+        case '1y':
+          startDate.setFullYear(now.getFullYear() - 1);
+          break;
+        default:
+          startDate.setDate(now.getDate() - 30);
+      }
+
+      // Filter data by date range
+      const recentMembers = members.filter(m =>
+        m.createdAt && new Date(m.createdAt) >= startDate
+      );
+      const recentTasks = tasks.filter(t =>
+        t.createdAt && new Date(t.createdAt) >= startDate
+      );
+
+      // Calculate growth metrics
+      const analytics = {
+        memberGrowth: recentMembers.length,
+        taskCompletion: {
+          completed: recentTasks.filter(t => t.status === 'completed').length,
+          pending: recentTasks.filter(t => t.status === 'pending').length,
+          overdue: recentTasks.filter(t => t.status === 'overdue').length,
+        },
+        conversionFunnel: {
+          newConverts: members.filter(m => m.status === 'new').length,
+          contacted: members.filter(m => m.status === 'contacted').length,
+          baptized: members.filter(m => m.baptized).length,
+          inBibleStudy: members.filter(m => m.inBibleStudy).length,
+          inSmallGroup: members.filter(m => m.inSmallGroup).length,
+        },
+        timeRange: range,
+        startDate: startDate.toISOString(),
+        endDate: now.toISOString(),
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error('Analytics error:', error);
+      res.status(500).json({ message: "Failed to fetch analytics data" });
     }
   });
 
