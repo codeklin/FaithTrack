@@ -4,7 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuth, AuthProvider } from "./contexts/AuthContext";
+import { Logo } from "@/components/ui/logo";
 import Login from "@/pages/Login";
 
 // Lazy load protected components to prevent them from being loaded when not authenticated
@@ -23,8 +24,10 @@ function Router() {
   // Don't render any routes until auth state is determined
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
+        <Logo size="xl" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p className="text-gray-600">Loading FaithTraka...</p>
       </div>
     );
   }
@@ -37,8 +40,10 @@ function Router() {
   // If authenticated, show protected routes
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
+        <Logo size="xl" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p className="text-gray-600">Loading...</p>
       </div>
     }>
       <Switch>
@@ -58,8 +63,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
+        <AuthProvider>
+          <Toaster />
+          <Router />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

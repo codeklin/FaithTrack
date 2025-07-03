@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Logo } from '@/components/ui/logo';
 import { Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -41,14 +42,17 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <Logo size="xl" />
+          </div>
           <CardTitle className="text-2xl text-center">
             {isRegister ? 'Create Account' : 'Sign In'}
           </CardTitle>
           <CardDescription className="text-center">
-            {isRegister 
-              ? 'Create your ChurchCare account' 
-              : 'Enter your credentials to access ChurchCare'
+            {isRegister
+              ? 'Create your FaithTraka account'
+              : 'Enter your credentials to access FaithTraka'
             }
           </CardDescription>
         </CardHeader>
