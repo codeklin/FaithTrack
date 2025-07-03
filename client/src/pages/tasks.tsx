@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
-import type { Task } from "@shared/schema";
+import type { Task } from "@shared/firestore-schema";
 
 export default function Tasks() {
   const [showAddTask, setShowAddTask] = useState(false);

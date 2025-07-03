@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import type { Member, InsertMember } from "@shared/schema";
+import { apiRequest } from "@/lib/api";
+import type { Member, InsertMember } from "@shared/firestore-schema";
 
 export function useMembers() {
   return useQuery<Member[]>({

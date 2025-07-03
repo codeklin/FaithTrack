@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { apiRequest } from "@/lib/api";
 import DesktopSidebar from "@/components/layout/desktop-sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNavigation from "@/components/layout/mobile-navigation";
@@ -12,22 +13,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Calendar, CheckCircle, Send, BarChart3, Users, UserPlus, Clock, TrendingUp } from "lucide-react";
-import type { Member, Task } from "@shared/schema";
+import type { Member, Task, Stats } from "@shared/firestore-schema";
 
 export default function Dashboard() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
+    queryFn: () => apiRequest('GET', '/api/stats'),
   });
 
   const { data: recentMembers, isLoading: membersLoading } = useQuery<Member[]>({
     queryKey: ["/api/members/recent"],
+    queryFn: () => apiRequest('GET', '/api/members/recent'),
   });
 
   const { data: urgentTasks, isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks/urgent"],
+    queryFn: () => apiRequest('GET', '/api/tasks/urgent'),
   });
 
   if (statsLoading || membersLoading || tasksLoading) {

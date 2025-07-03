@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { Task, Member } from "@shared/schema";
+import type { Task, Member } from "@shared/firestore-schema";
+import { toDate } from "@/lib/date-utils";
 
 interface TaskCardProps {
   task: Task;
@@ -61,7 +62,7 @@ export default function TaskCard({ task, showMember = false }: TaskCardProps) {
     }
   };
 
-  const isOverdue = new Date(task.dueDate) < new Date() && task.status === 'pending';
+  const isOverdue = toDate(task.dueDate) < new Date() && task.status === 'pending';
 
   return (
     <div className={`bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors ${getPriorityBorder(task.priority)}`}>
@@ -81,12 +82,12 @@ export default function TaskCard({ task, showMember = false }: TaskCardProps) {
               {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
             </span>
             <span className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-              Due: {format(new Date(task.dueDate), 'MMM d, yyyy')}
+              Due: {format(toDate(task.dueDate), 'MMM d, yyyy')}
               {isOverdue && ' (Overdue)'}
             </span>
             {task.status === 'completed' && task.completedDate && (
               <span className="text-xs text-green-600">
-                Completed: {format(new Date(task.completedDate), 'MMM d, yyyy')}
+                Completed: {format(toDate(task.completedDate), 'MMM d, yyyy')}
               </span>
             )}
           </div>

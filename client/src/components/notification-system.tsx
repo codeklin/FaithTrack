@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { Task } from "@shared/schema";
+import type { Task } from "@shared/firestore-schema";
+import { toDate } from "@/lib/date-utils";
 
 interface Notification {
   id: string;
@@ -13,7 +14,7 @@ interface Notification {
   message: string;
   type: 'reminder' | 'urgent' | 'info';
   timestamp: Date;
-  taskId?: number;
+  taskId?: string;
   isRead: boolean;
 }
 
@@ -51,7 +52,7 @@ export default function NotificationSystem() {
     const allTasks = [...(urgentTasks || []), ...(pendingTasks || [])];
     
     allTasks.forEach(task => {
-      const dueDate = new Date(task.dueDate);
+      const dueDate = toDate(task.dueDate);
       const timeDiff = dueDate.getTime() - now.getTime();
       const hoursUntilDue = timeDiff / (1000 * 60 * 60);
       

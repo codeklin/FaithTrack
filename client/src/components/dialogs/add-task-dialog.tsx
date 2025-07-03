@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertTaskSchema, type InsertTask, type Member } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { insertTaskSchema, type InsertTask, type Member } from "@shared/firestore-schema";
+import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { toInputValue } from "@/lib/date-utils";
 
 interface AddTaskDialogProps {
   open: boolean;
@@ -42,9 +43,10 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
 
   const { data: members } = useQuery<Member[]>({
     queryKey: ["/api/members"],
+    queryFn: () => apiRequest('GET', '/api/members'),
   });
 
-  const form = useForm<InsertTask>({
+  const form = useForm({
     resolver: zodResolver(insertTaskSchema),
     defaultValues: {
       title: "",
@@ -142,7 +144,7 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
                       </FormControl>
                       <SelectContent>
                         {members?.map((member) => (
-                          <SelectItem key={member.id} value={member.id.toString()}>
+                          <SelectItem key={member.id} value={member.id?.toString() || ""}>
                             {member.name}
                           </SelectItem>
                         ))}
@@ -188,7 +190,7 @@ export default function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps
                       <Input 
                         type="datetime-local" 
                         {...field}
-                        value={field.value instanceof Date ? field.value.toISOString().slice(0, 16) : field.value}
+                        value={toInputValue(field.value)}
                         onChange={(e) => field.onChange(new Date(e.target.value))}
                       />
                     </FormControl>

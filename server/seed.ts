@@ -1,151 +1,206 @@
-import { db } from "./db";
-import { members, tasks, followUps } from "@shared/schema";
+import { firestoreStorage } from "./firestore-storage";
+import type { InsertMember, InsertTask, InsertFollowUp } from "@shared/firestore-schema";
 
 async function seed() {
-  console.log("🌱 Seeding database...");
-
-  // Clear existing data
-  await db.delete(followUps);
-  await db.delete(tasks);
-  await db.delete(members);
+  console.log("🌱 Seeding Firestore database...");
 
   // Sample members data
-  const sampleMembers = [
+  const sampleMembers: InsertMember[] = [
+    {
+      name: "John Smith",
+      email: "john.smith@email.com",
+      phone: "+1-555-0101",
+      address: "123 Main St, Anytown, USA",
+      dateOfBirth: new Date("1985-03-15"),
+      membershipStatus: "active",
+      joinDate: new Date("2020-01-15"),
+      baptismDate: new Date("2020-06-15"),
+      notes: "Active in youth ministry",
+      status: "active",
+      convertedDate: new Date("2020-01-15"),
+      baptized: true,
+      inBibleStudy: true,
+      inSmallGroup: false,
+    },
     {
       name: "Sarah Johnson",
       email: "sarah.johnson@email.com",
-      phone: "+1 (555) 123-4567",
-      address: "123 Faith Street, City, ST 12345",
-      convertedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-      baptized: false,
-      baptismDate: null,
-      inBibleStudy: true,
-      inSmallGroup: false,
-      notes: "Very enthusiastic about faith. Baptism scheduled for next week.",
-      assignedStaff: "Pastor Jide",
-      status: "contacted",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
-    },
-    {
-      name: "Michael Chen",
-      email: "michael.chen@email.com",
-      phone: "+1 (555) 987-6543",
-      address: "456 Hope Avenue, City, ST 12345",
-      convertedDate: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), // 3 weeks ago
-      baptized: false,
-      baptismDate: null,
-      inBibleStudy: true,
-      inSmallGroup: false,
-      notes: "Has questions about Bible study material. Needs follow-up call.",
-      assignedStaff: "Pastor Jide",
-      status: "contacted",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
-    },
-    {
-      name: "Maria Rodriguez",
-      email: "maria.rodriguez@email.com",
-      phone: "+1 (555) 456-7890",
-      address: "789 Grace Blvd, City, ST 12345",
-      convertedDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 2 weeks ago
+      phone: "+1-555-0102",
+      address: "456 Oak Ave, Anytown, USA",
+      dateOfBirth: new Date("1990-07-22"),
+      membershipStatus: "active",
+      joinDate: new Date("2019-09-10"),
+      baptismDate: new Date("2019-12-25"),
+      notes: "Choir member and volunteer coordinator",
+      status: "active",
+      convertedDate: new Date("2019-09-10"),
       baptized: true,
-      baptismDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      inBibleStudy: false,
+      inSmallGroup: true,
+    },
+    {
+      name: "Michael Brown",
+      email: "michael.brown@email.com",
+      phone: "+1-555-0103",
+      address: "789 Pine St, Anytown, USA",
+      dateOfBirth: new Date("1978-11-08"),
+      membershipStatus: "active",
+      joinDate: new Date("2018-05-20"),
+      baptismDate: new Date("2018-08-15"),
+      notes: "Deacon and community outreach leader",
+      status: "active",
+      convertedDate: new Date("2018-05-20"),
+      baptized: true,
       inBibleStudy: true,
       inSmallGroup: true,
-      notes: "Active in small group. Great progress in spiritual journey.",
-      assignedStaff: "Pastor Jide",
+    },
+    {
+      name: "Emily Davis",
+      email: "emily.davis@email.com",
+      phone: "+1-555-0104",
+      address: "321 Elm St, Anytown, USA",
+      dateOfBirth: new Date("1995-02-14"),
+      membershipStatus: "active",
+      joinDate: new Date("2021-03-01"),
+      notes: "New member, interested in Bible study groups",
+      status: "new",
+      convertedDate: new Date("2021-03-01"),
+      baptized: false,
+      inBibleStudy: true,
+      inSmallGroup: false,
+    },
+    {
+      name: "Robert Wilson",
+      email: "robert.wilson@email.com",
+      phone: "+1-555-0105",
+      address: "654 Maple Dr, Anytown, USA",
+      dateOfBirth: new Date("1965-09-30"),
+      membershipStatus: "inactive",
+      joinDate: new Date("2015-11-12"),
+      baptismDate: new Date("2016-04-10"),
+      notes: "Moved to another city, maintaining membership",
       status: "active",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
-    }
+      convertedDate: new Date("2015-11-12"),
+      baptized: true,
+      inBibleStudy: false,
+      inSmallGroup: false,
+    },
   ];
 
-  const insertedMembers = await db.insert(members).values(sampleMembers).returning();
-  console.log(`✅ Inserted ${insertedMembers.length} members`);
+  console.log("Creating members...");
+  const insertedMembers = [];
+  for (const memberData of sampleMembers) {
+    const member = await firestoreStorage.createMember(memberData);
+    insertedMembers.push(member);
+    console.log(`Created member: ${member.name}`);
+  }
 
   // Sample tasks data
-  const sampleTasks = [
+  const sampleTasks: InsertTask[] = [
     {
-      title: "Follow-up call with Michael Chen",
-      description: "Discuss Bible study progress and address questions",
-      memberId: insertedMembers[1].id, // Michael Chen
-      assignedTo: "Pastor Jide",
+      title: "Follow up with new member Emily",
+      description: "Schedule a welcome meeting and introduce to Bible study group",
+      memberId: insertedMembers[3].id!, // Emily Davis
+      assignedTo: "Pastor Johnson",
       priority: "high",
       status: "pending",
-      dueDate: new Date(Date.now() + 1 * 60 * 60 * 1000), // Due in 1 hour
-      completedDate: null,
-      reminderSent: false
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
     },
     {
-      title: "Schedule baptism for Sarah Johnson",
-      description: "Coordinate with baptism team and family",
-      memberId: insertedMembers[0].id, // Sarah Johnson
-      assignedTo: "Pastor Jide",
+      title: "Baptism preparation for John",
+      description: "Complete baptism classes and schedule ceremony",
+      memberId: insertedMembers[0].id!, // John Smith
+      assignedTo: "Pastor Johnson",
+      priority: "medium",
+      status: "completed",
+      dueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+
+    },
+    {
+      title: "Visit Robert Wilson",
+      description: "Check in on Robert and his family after their move",
+      memberId: insertedMembers[4].id!, // Robert Wilson
+      assignedTo: "Deacon Michael",
       priority: "medium",
       status: "pending",
-      dueDate: new Date(Date.now() - 30 * 60 * 1000), // Overdue by 30 minutes
-      completedDate: null,
-      reminderSent: false
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from now
     },
     {
-      title: "Send welcome package to Maria Rodriguez",
-      description: "Include study materials and church information",
-      memberId: insertedMembers[2].id, // Maria Rodriguez
-      assignedTo: "Pastor Jide",
-      priority: "low",
+      title: "Organize youth ministry event",
+      description: "Plan and coordinate monthly youth gathering",
+      assignedTo: "Sarah Johnson",
+      priority: "high",
       status: "pending",
-      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Friday
-      completedDate: null,
-      reminderSent: false
-    }
+      dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // 3 weeks from now
+    },
+    {
+      title: "Community outreach planning",
+      description: "Develop strategy for next quarter's community service projects",
+      memberId: insertedMembers[2].id!, // Michael Brown
+      assignedTo: "Michael Brown",
+      priority: "medium",
+      status: "pending",
+      dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
+    },
   ];
 
-  const insertedTasks = await db.insert(tasks).values(sampleTasks).returning();
-  console.log(`✅ Inserted ${insertedTasks.length} tasks`);
+  console.log("Creating tasks...");
+  const insertedTasks = [];
+  for (const taskData of sampleTasks) {
+    const task = await firestoreStorage.createTask(taskData);
+    insertedTasks.push(task);
+    console.log(`Created task: ${task.title}`);
+  }
 
   // Sample follow-ups data
-  const sampleFollowUps = [
+  const sampleFollowUps: InsertFollowUp[] = [
     {
-      type: "phone_call",
-      notes: "Initial welcome call completed. Answered questions about baptism process.",
-      memberId: insertedMembers[0].id, // Sarah Johnson
-      completedDate: null,
+      memberId: insertedMembers[3].id!, // Emily Davis
+      type: "call",
+      notes: "Welcome call to new member",
       scheduledDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-      nextFollowUp: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
     },
     {
+      memberId: insertedMembers[0].id!, // John Smith
       type: "visit",
-      notes: "Home visit to discuss joining small group",
-      memberId: insertedMembers[1].id, // Michael Chen
-      completedDate: null,
-      scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
-      nextFollowUp: null
+      notes: "Home visit to discuss ministry involvement",
+      scheduledDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
     },
     {
+      memberId: insertedMembers[4].id!, // Robert Wilson
       type: "email",
-      notes: "Sent congratulations on baptism and small group resources",
-      memberId: insertedMembers[2].id, // Maria Rodriguez
-      completedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      scheduledDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      nextFollowUp: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    }
+      notes: "Check in via email about family's adjustment to new city",
+      scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+    },
+    {
+      memberId: insertedMembers[1].id!, // Sarah Johnson
+      type: "call",
+      notes: "Discuss choir schedule and upcoming performances",
+      scheduledDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+    },
+    {
+      memberId: insertedMembers[2].id!, // Michael Brown
+      type: "visit",
+      notes: "Meeting to plan community outreach initiatives",
+      scheduledDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from now
+    },
   ];
 
-  const insertedFollowUps = await db.insert(followUps).values(sampleFollowUps).returning();
-  console.log(`✅ Inserted ${insertedFollowUps.length} follow-ups`);
+  console.log("Creating follow-ups...");
+  const insertedFollowUps = [];
+  for (const followUpData of sampleFollowUps) {
+    const followUp = await firestoreStorage.createFollowUp(followUpData);
+    insertedFollowUps.push(followUp);
+    console.log(`Created follow-up: ${followUp.type} for member ${followUp.memberId}`);
+  }
 
-  console.log("🎉 Database seeded successfully!");
+  console.log("✅ Database seeded successfully!");
+  console.log(`Created ${insertedMembers.length} members`);
+  console.log(`Created ${insertedTasks.length} tasks`);
+  console.log(`Created ${insertedFollowUps.length} follow-ups`);
 }
 
-// Run seeding if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  seed()
-    .then(() => {
-      console.log("✅ Seeding completed");
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error("❌ Seeding failed:", error);
-      process.exit(1);
-    });
-}
-
-export { seed };
+seed().catch((error) => {
+  console.error("❌ Error seeding database:", error);
+  process.exit(1);
+});

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertMemberSchema, type InsertMember } from "@shared/schema";
+import { insertMemberSchema, type InsertMember } from "@shared/firestore-schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,7 +33,7 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<InsertMember>({
+  const form = useForm({
     resolver: zodResolver(insertMemberSchema),
     defaultValues: {
       name: "",
@@ -44,6 +44,11 @@ export default function AddMemberDialog({ open, onOpenChange }: AddMemberDialogP
       assignedStaff: "Pastor Jide",
       status: "new",
       avatar: "",
+      membershipStatus: "pending",
+      convertedDate: new Date(),
+      baptized: false,
+      inBibleStudy: false,
+      inSmallGroup: false,
     },
   });
 

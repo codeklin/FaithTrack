@@ -44,14 +44,12 @@ A comprehensive Progressive Web Application designed to help churches track and 
 ### Backend
 - **Node.js** with Express.js
 - **TypeScript** for type safety
-- **Drizzle ORM** for database operations
-- **Neon Database** (PostgreSQL) for data storage
-- **Passport.js** for authentication
-- **Express Session** for session management
+- **Firebase Firestore** for database operations
+- **Firebase Authentication** for user authentication
+- **Firebase Admin SDK** for server-side operations
 
 ### Development Tools
 - **TSX** for TypeScript execution
-- **Drizzle Kit** for database migrations
 - **ESBuild** for production builds
 - **PostCSS** with Autoprefixer
 
@@ -59,7 +57,7 @@ A comprehensive Progressive Web Application designed to help churches track and 
 
 - **Node.js** (v18 or higher)
 - **npm** or **yarn**
-- **PostgreSQL database** (Neon Database recommended)
+- **Firebase project** with Firestore and Authentication enabled
 
 ## 🚀 Quick Start
 
@@ -74,18 +72,36 @@ cd ChurchCare
 npm install --legacy-peer-deps
 ```
 
-### 3. Environment Setup
+### 3. Firebase Setup
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Firestore Database and Authentication
+3. Generate a service account key for server-side operations
+4. Copy your Firebase configuration
+
+### 4. Environment Setup
 Create a `.env` file in the root directory:
 ```env
-DATABASE_URL=your_postgresql_connection_string
-SESSION_SECRET=your_session_secret_key
-NODE_ENV=development
-```
+# Firebase Configuration
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+FIREBASE_APP_ID=your_app_id
 
-### 4. Database Setup
-```bash
-# Push database schema
-npm run db:push
+# Firebase Admin SDK (for server-side)
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your_project_id",...}
+
+# Client-side Firebase Configuration (for Vite)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+
+# Application Configuration
+NODE_ENV=development
 ```
 
 ### 5. Start Development Server
@@ -118,28 +134,32 @@ ChurchCare/
 └── package.json           # Project dependencies and scripts
 ```
 
-## 🗄 Database Schema
+## 🗄 Firestore Database Schema
 
-### Members Table
+### Members Collection
 - Personal information (name, email, phone, address)
 - Conversion and baptism tracking
 - Bible study and small group participation
 - Staff assignment and notes
 - Status progression (new → contacted → baptized → active)
+- Document ID serves as unique identifier
 
-### Tasks Table
+### Tasks Collection
 - Task management with priorities and due dates
-- Member association and staff assignment
+- Member association via document ID references
 - Completion tracking and reminder system
+- Firestore timestamps for due dates and completion
 
-### Follow-ups Table
+### Follow-ups Collection
 - Scheduled follow-up activities
 - Multiple contact methods (call, visit, email, text)
 - Next follow-up scheduling and completion tracking
+- Member association via document ID references
 
-### Users Table
-- Staff authentication and authorization
-- Username/password based login system
+### Users Collection
+- Staff authentication via Firebase Auth
+- User profiles with roles and permissions
+- Document ID matches Firebase Auth UID
 
 ## 🔧 Available Scripts
 
@@ -159,11 +179,12 @@ ChurchCare is built as a PWA with:
 
 ## 🔐 Authentication
 
-The application uses Passport.js with local strategy for authentication:
-- Session-based authentication
-- Secure password handling
-- Protected API routes
-- User session management
+The application uses Firebase Authentication:
+- Email/password authentication
+- JWT token-based authentication
+- Protected API routes with Firebase Admin SDK
+- Automatic user session management
+- Secure authentication flow with Firebase Auth
 
 ## 🚀 Deployment
 
@@ -175,8 +196,25 @@ npm run start
 
 ### Environment Variables for Production
 ```env
-DATABASE_URL=your_production_database_url
-SESSION_SECRET=your_secure_session_secret
+# Firebase Configuration (same as development)
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+FIREBASE_APP_ID=your_app_id
+
+# Firebase Admin SDK
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
+
+# Client-side Firebase Configuration
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+
 NODE_ENV=production
 ```
 

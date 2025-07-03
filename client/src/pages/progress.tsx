@@ -5,14 +5,18 @@ import MobileHeader from "@/components/layout/mobile-header";
 import MobileNavigation from "@/components/layout/mobile-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { apiRequest } from "@/lib/api";
+import type { Member, Stats } from "@shared/firestore-schema";
 
 export default function ProgressPage() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
+    queryFn: () => apiRequest('GET', '/api/stats'),
   });
 
-  const { data: members, isLoading: membersLoading } = useQuery({
+  const { data: members, isLoading: membersLoading } = useQuery<Member[]>({
     queryKey: ["/api/members"],
+    queryFn: () => apiRequest('GET', '/api/members'),
   });
 
   if (isLoading || membersLoading) {

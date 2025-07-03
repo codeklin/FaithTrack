@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import type { Member } from "@shared/schema";
+import type { Member } from "@shared/firestore-schema";
 
 export default function Members() {
   const [showAddMember, setShowAddMember] = useState(false);

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { toDate } from "@/lib/date-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-import type { Member } from "@shared/schema";
+import type { Member } from "@shared/firestore-schema";
 
 interface MemberCardProps {
   member: Member;
@@ -74,7 +75,7 @@ export default function MemberCard({ member, showDetails = false }: MemberCardPr
         <div className="flex items-center justify-between">
           <p className="font-medium text-gray-900">{member.name}</p>
           <span className="text-xs text-gray-500">
-            {format(new Date(member.convertedDate), 'MMM d, yyyy')}
+            {format(toDate(member.convertedDate), 'MMM d, yyyy')}
           </span>
         </div>
         

@@ -37,7 +37,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  console.log('Starting server...');
   const server = await registerRoutes(app);
+  console.log('Routes registered successfully');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -50,9 +52,16 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  console.log('Environment check:', {
+    'app.get("env")': app.get("env"),
+    'process.env.NODE_ENV': process.env.NODE_ENV
+  });
+
+  if (app.get("env")?.trim() === "development" || process.env.NODE_ENV?.trim() === "development") {
+    console.log('Setting up Vite for development');
     await setupVite(app, server);
   } else {
+    console.log('Setting up static file serving for production');
     serveStatic(app);
   }
 
@@ -62,9 +71,11 @@ app.use((req, res, next) => {
   const port = 5000;
   server.listen({
     port,
-    host: "0.0.0.0",
-    reusePort: true,
+    host: "localhost",
   }, () => {
     log(`serving on port ${port}`);
   });
-})();
+})().catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});

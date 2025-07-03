@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import type { Task, InsertTask } from "@shared/schema";
+import { apiRequest } from "@/lib/api";
+import type { Task, InsertTask } from "@shared/firestore-schema";
 
 export function useTasks() {
   return useQuery<Task[]>({

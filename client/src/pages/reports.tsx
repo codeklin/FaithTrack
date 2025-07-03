@@ -7,20 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { apiRequest } from "@/lib/api";
+import { toDate } from "@/lib/date-utils";
+import type { Member, Task, Stats } from "@shared/firestore-schema";
 
 export default function Reports() {
   const [reportPeriod, setReportPeriod] = useState("monthly");
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
+    queryFn: () => apiRequest('GET', '/api/stats'),
   });
 
-  const { data: members, isLoading: membersLoading } = useQuery({
+  const { data: members, isLoading: membersLoading } = useQuery<Member[]>({
     queryKey: ["/api/members"],
+    queryFn: () => apiRequest('GET', '/api/members'),
   });
 
-  const { data: tasks, isLoading: tasksLoading } = useQuery({
+  const { data: tasks, isLoading: tasksLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
+    queryFn: () => apiRequest('GET', '/api/tasks'),
   });
 
   if (isLoading || membersLoading || tasksLoading) {
@@ -195,7 +201,7 @@ export default function Reports() {
                   <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                     <span className="text-sm font-medium">Overdue Tasks</span>
                     <span className="font-bold text-red-600">
-                      {tasks?.filter(t => t.status === 'pending' && new Date(t.dueDate) < new Date()).length || 0}
+                      {tasks?.filter(t => t.status === 'pending' && toDate(t.dueDate) < new Date()).length || 0}
                     </span>
                   </div>
                 </div>
@@ -213,7 +219,7 @@ export default function Reports() {
                 <div className="flex items-center justify-between py-2 border-b">
                   <span className="text-sm text-gray-600">Most Recent Convert</span>
                   <span className="font-medium">
-                    {members?.sort((a, b) => new Date(b.convertedDate).getTime() - new Date(a.convertedDate).getTime())[0]?.name || 'N/A'}
+                    {members?.sort((a, b) => toDate(b.convertedDate).getTime() - toDate(a.convertedDate).getTime())[0]?.name || 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b">
