@@ -1,33 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  Area,
-  AreaChart
-} from "recharts";
-import { 
-  Users, 
-  TrendingUp, 
-  Calendar, 
-  CheckCircle, 
-  Clock,
-  UserPlus,
-  Heart,
-  BookOpen,
-  Target,
-  Award
-} from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import DesktopSidebar from "@/components/layout/desktop-sidebar";
@@ -38,8 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import type { Member, Task, Stats } from "@shared/firestore-schema";
-
-const COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#EF4444'];
+import { Users, UserPlus, Heart, BookOpen, Target } from "lucide-react";
 
 export default function Analytics() {
   const { currentUser } = useAuth();
@@ -253,52 +224,6 @@ export default function Analytics() {
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Charts Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Member Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={membersByStatus}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, value }) => `${name}: ${value}`}
-                        >
-                          {membersByStatus.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Task Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={taskStats}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="value" fill="#6366F1" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              </div>
             </TabsContent>
 
             <TabsContent value="growth" className="space-y-6">
@@ -307,17 +232,7 @@ export default function Analytics() {
                   <CardTitle>Growth Trends</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <AreaChart data={growthData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="members" stackId="1" stroke="#6366F1" fill="#6366F1" />
-                      <Area type="monotone" dataKey="baptisms" stackId="1" stroke="#8B5CF6" fill="#8B5CF6" />
-                      <Area type="monotone" dataKey="tasks" stackId="1" stroke="#EC4899" fill="#EC4899" />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <p className="text-gray-500">Growth trends data is currently unavailable.</p>
                 </CardContent>
               </Card>
             </TabsContent>
