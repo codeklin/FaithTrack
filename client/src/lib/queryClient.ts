@@ -61,18 +61,4 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      queryFn: getQueryFn({ on401: "returnNull" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: false, // Completely disable retries to prevent loops
-      enabled: false, // Disable by default, enable in components when authenticated
-    },
-    mutations: {
-      retry: false,
-    },
-  },
-});
+export const queryClient = new QueryClient();
