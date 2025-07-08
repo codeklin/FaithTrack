@@ -325,7 +325,7 @@ export default function Analytics() {
         </div>
       </div>
       
-      <MobileNavigation />
+      <MobileNavigation activeTab="analytics" />
     </div>
   );
 }
