@@ -2,41 +2,19 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "dist/index.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
-          "dist/**",
-          "client/public/**",
-          "shared/**"
+          "dist/**"
         ]
       }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/(.*)",
       "dest": "/dist/index.js"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/client/public/manifest.json"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/client/public/favicon.svg"
-    },
-    {
-      "src": "/logo.svg",
-      "dest": "/client/public/logo.svg"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/public/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/public/index.html"
     }
   ],
   "functions": {
@@ -46,33 +24,5 @@
   },
   "env": {
     "NODE_ENV": "production"
-  },
-  "headers": [
-    {
-      "source": "/manifest.json",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/manifest+json"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ]
+  }
 }
