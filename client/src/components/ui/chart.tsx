@@ -42,7 +42,7 @@ const ChartContainer = React.forwardRef<
       typeof Recharts.ResponsiveContainer
     >["children"]
   }
->(({ id, className, children, config, ...props }, ref) => {
+>(({ id, className, children, config, ...props }, ref: React.ForwardedRef<HTMLDivElement>) => {
   const uniqueId = React.useId()
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
 
@@ -106,14 +106,21 @@ const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof Recharts.Tooltip> &
     React.ComponentProps<"div"> & {
-      hideLabel?: boolean
-      hideIndicator?: boolean
-      indicator?: "line" | "dot" | "dashed"
-      nameKey?: string
-      labelKey?: string
-      labelClassName?: string
-      labelFormatter?: (label: string | number, payload: any[]) => React.ReactNode
-      formatter?: (value: any, name: string, item: any, index: number, payload: any[]) => React.ReactNode
+      hideLabel?: boolean;
+      hideIndicator?: boolean;
+      indicator?: "line" | "dot" | "dashed";
+      nameKey?: string;
+      labelKey?: string;
+      labelClassName?: string;
+      labelFormatter?: (label: string | number, payload: any[]) => React.ReactNode;
+      formatter?: (
+        value: any,
+        name: string,
+        item: any,
+        index: number,
+        payload: any[]
+      ) => React.ReactNode;
+      color?: string; // Added color to props definition
     }
 >(
   (
@@ -128,11 +135,32 @@ const ChartTooltipContent = React.forwardRef<
       labelFormatter,
       labelClassName,
       formatter,
+      color, // Now correctly typed via props
+      nameKey,
+      labelKey,
+    }: // It's better to define a type alias for these props if we were to annotate here
+    // For now, relying on inference from the forwardRef generic.
+    // If errors persist for these destructured props, we'll need explicit typing here or an alias.
+    // Restore to rely on inference from React.forwardRef generic args
+    // The props object itself (first argument to the function component)
+    // should have its type inferred from the second generic argument of forwardRef.
+    // Individual destructured properties will also be inferred.
+    {
+      active,
+      payload, // payload is any[] | undefined from TooltipProps
+      className,
+      indicator = "dot",
+      hideLabel = false,
+      hideIndicator = false,
+      label,
+      labelFormatter, // Type already defined in props
+      labelClassName,
+      formatter, // Type already defined in props
       color,
       nameKey,
       labelKey,
     },
-    ref
+    ref: React.ForwardedRef<HTMLDivElement>
   ) => {
     const { config } = useChart()
 
@@ -141,7 +169,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      const [item] = payload
+      const [item] = payload // item is 'any' here
       const key = `${labelKey || item?.dataKey || item?.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
@@ -150,9 +178,10 @@ const ChartTooltipContent = React.forwardRef<
           : itemConfig?.label
 
       if (labelFormatter) {
+        // If item is passed to labelFormatter, its type depends on labelFormatter's signature
         return (
           <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value as string | number, item)}
+            {labelFormatter(value as string | number, payload as any[])}
           </div>
         )
       }
@@ -188,7 +217,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {payload.map((item: any, index: number) => { // Explicitly type item and index here
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
             const indicatorColor = color || item.payload.fill || item.color
@@ -276,7 +305,7 @@ const ChartLegendContent = React.forwardRef<
 >(
   (
     { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
-    ref
+    ref: React.ForwardedRef<HTMLDivElement>
   ) => {
     const { config } = useChart()
 
@@ -293,7 +322,7 @@ const ChartLegendContent = React.forwardRef<
           className
         )}
       >
-        {payload.map((item) => {
+        {payload.map((item: any) => { // Explicitly type item
           const key = `${nameKey || (item as any).dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
