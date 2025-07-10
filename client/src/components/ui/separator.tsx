@@ -3,6 +3,9 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
 import { cn } from "@/lib/utils"
 
+// Create type-asserted version of Radix component
+const _SeparatorPrimitiveRoot = SeparatorPrimitive.Root as React.FC<React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> & { className?: string }>;
+
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
@@ -11,7 +14,7 @@ const Separator = React.forwardRef<
     { className, orientation = "horizontal", decorative = true, ...props },
     ref
   ) => (
-    <SeparatorPrimitive.Root
+    <_SeparatorPrimitiveRoot
       ref={ref}
       decorative={decorative}
       orientation={orientation}

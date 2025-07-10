@@ -3,16 +3,22 @@ import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 import { cn } from "@/lib/utils"
 
-const Popover = PopoverPrimitive.Root
+// Create type-asserted versions of Radix components
+const _PopoverPrimitiveRoot = PopoverPrimitive.Root as React.FC<React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Root> & { className?: string; children?: React.ReactNode }>;
+const _PopoverPrimitiveTrigger = PopoverPrimitive.Trigger as React.FC<React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger> & { className?: string; children?: React.ReactNode }>;
+const _PopoverPrimitivePortal = PopoverPrimitive.Portal as React.FC<React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Portal> & { className?: string; children?: React.ReactNode }>;
+const _PopoverPrimitiveContent = PopoverPrimitive.Content as React.FC<React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & { className?: string; children?: React.ReactNode }>;
 
-const PopoverTrigger = PopoverPrimitive.Trigger
+
+const Popover = _PopoverPrimitiveRoot
+const PopoverTrigger = _PopoverPrimitiveTrigger
 
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content
+  <_PopoverPrimitivePortal>
+    <_PopoverPrimitiveContent
       ref={ref}
       align={align}
       sideOffset={sideOffset}
@@ -22,7 +28,7 @@ const PopoverContent = React.forwardRef<
       )}
       {...props}
     />
-  </PopoverPrimitive.Portal>
+  </_PopoverPrimitivePortal>
 ))
 PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
