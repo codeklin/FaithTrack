@@ -1,14 +1,14 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic } from "./vite";
 import { log } from './logger';
+// Vite and http imports are now dynamically imported for local dev
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// A simple logger for API requests
+// API request logger
 app.use('/api', (req, res, next) => {
   const start = Date.now();
   res.on("finish", () => {
@@ -18,38 +18,54 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+// Async IIFE to configure the app's API routes and error handling
 (async () => {
-  // For Vercel, we only want to register routes and configure the app object.
-  // Static serving and Vite middleware are not for the Vercel serverless function.
-  // The app.listen() call is also removed.
+  try {
+    await registerRoutes(app);
+    log('API routes registered.');
 
-  console.log('Configuring Express app for Vercel...');
-  await registerRoutes(app); // server object is not used in this context anymore
-  console.log('API routes registered successfully for Vercel');
+    // Final catch-all error handler for API routes
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || 'Internal Server Error';
+      log('Express API error caught:', { message: err.message, stack: err.stack }, 'error');
+      res.status(status).json({ message });
+    });
 
-  // Local development server logic (including app.listen, Vite, static serving)
-  // should be handled differently, perhaps in a separate script or conditional block
-  // not executed in Vercel's environment.
-  // For now, this IIFE will just set up the app for Vercel.
+    log('Express app API handling configured.');
+  } catch (error) {
+    log('Failed to initialize Express app API handling:', error, 'error');
+    // If this setup fails, the app might not be usable.
+    // For Vercel, an error here would likely fail the function initialization.
+    // For local dev, the server might not start correctly.
+  }
+})();
 
-  // Final catch-all error handler for API routes.
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
+// Local Development Server Setup
+// This block only runs if NODE_ENV is 'development' and not in a Vercel environment
+if (process.env.NODE_ENV === 'development' && !process.env.VERCEL_ENV) {
+  (async () => {
+    try {
+      const http = await import('http');
+      const { setupVite } = await import('./vite'); // Make sure setupVite is correctly exported
 
-    // Log the error for debugging purposes
-    console.error('Express error caught:', err);
+      const httpServer = http.createServer(app);
 
-    res.status(status).json({ message });
-  });
+      log('Setting up Vite for local development...');
+      // The 'server' parameter in setupVite is the http.Server instance for HMR
+      await setupVite(app, httpServer);
+      log('Vite setup complete for local development.');
 
-  // Logic for starting the server (app.listen) is removed for Vercel.
-  // Vercel will use the exported app as a handler.
-  // The setupVite and serveStatic calls are also removed as Vercel handles static assets.
-})().catch(error => {
-  console.error('Failed to initialize app for Vercel:', error);
-  // In a serverless environment, process.exit might not be appropriate.
-  // Let the error propagate or handle it as Vercel expects.
-});
+      const port = process.env.PORT || 5000;
+      httpServer.listen(port, () => {
+        log(`Development server listening on http://localhost:${port}`);
+      });
+    } catch (devError) {
+      log('Failed to start local development server:', devError, 'error');
+      process.exit(1); // Exit if local dev server fails to start
+    }
+  })();
+}
 
-export default app; // Export the app for Vercel
+// This export is for Vercel (and potentially other serverless environments)
+export default app;
