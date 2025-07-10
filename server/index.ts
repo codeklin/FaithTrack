@@ -19,27 +19,20 @@ app.use('/api', (req, res, next) => {
 });
 
 (async () => {
-  console.log('Starting server...');
-  const server = await registerRoutes(app);
-  console.log('Routes registered successfully');
+  // For Vercel, we only want to register routes and configure the app object.
+  // Static serving and Vite middleware are not for the Vercel serverless function.
+  // The app.listen() call is also removed.
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  console.log('Environment check:', {
-    'app.get("env")': app.get("env"),
-    'process.env.NODE_ENV': process.env.NODE_ENV
-  });
+  console.log('Configuring Express app for Vercel...');
+  await registerRoutes(app); // server object is not used in this context anymore
+  console.log('API routes registered successfully for Vercel');
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Setting up Vite for development');
-    await setupVite(app, server);
-  } else {
-    console.log('Setting up static file serving for production');
-    serveStatic(app);
-  }
+  // Local development server logic (including app.listen, Vite, static serving)
+  // should be handled differently, perhaps in a separate script or conditional block
+  // not executed in Vercel's environment.
+  // For now, this IIFE will just set up the app for Vercel.
 
-  // Final catch-all error handler. This should be the last `app.use()`.
+  // Final catch-all error handler for API routes.
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
@@ -50,17 +43,13 @@ app.use('/api', (req, res, next) => {
     res.status(status).json({ message });
   });
 
-  // Use Vercel's port or fallback to 5000 for local development
-  const port = process.env.PORT || 5000;
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-
-  server.listen({
-    port: Number(port),
-    host,
-  }, () => {
-    log(`serving on port ${port} (${process.env.NODE_ENV || 'development'})`);
-  });
+  // Logic for starting the server (app.listen) is removed for Vercel.
+  // Vercel will use the exported app as a handler.
+  // The setupVite and serveStatic calls are also removed as Vercel handles static assets.
 })().catch(error => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
+  console.error('Failed to initialize app for Vercel:', error);
+  // In a serverless environment, process.exit might not be appropriate.
+  // Let the error propagate or handle it as Vercel expects.
 });
+
+export default app; // Export the app for Vercel
