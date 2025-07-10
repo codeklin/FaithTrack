@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { auth } from "@shared/firebase-config";
+import type { User as FirebaseUser } from 'firebase/auth'; // Import User type for clarity
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -8,15 +9,35 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Helper function to get the current user, waiting if auth state is initializing
+function getCurrentUserWhenAvailable(): Promise<FirebaseUser | null> {
+  return new Promise((resolve) => {
+    if (auth.currentUser) {
+      resolve(auth.currentUser);
+    } else {
+      const unsubscribe = auth.onAuthStateChanged(user => {
+        unsubscribe(); // Unsubscribe after first callback
+        resolve(user);
+      });
+    }
+  });
+}
+
 async function getAuthHeaders(): Promise<Record<string, string>> {
-  const user = auth.currentUser;
+  const user = await getCurrentUserWhenAvailable(); // Wait for user to be available
   if (user) {
-    const token = await user.getIdToken();
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
+    try {
+      const token = await user.getIdToken();
+      return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+    } catch (error) {
+      console.error("Error fetching ID token in getAuthHeaders:", error);
+      // Fall through to return headers without Authorization if token fetch fails
+    }
   }
+  // If no user, or token fetch failed, only Content-Type is returned.
   return {
     'Content-Type': 'application/json'
   };
