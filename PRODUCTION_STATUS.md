@@ -78,8 +78,8 @@
    - Set `NODE_ENV=production`
 
 3. **Deploy Application**
-   - Run `npm run build` to create production build
-   - Run `npm start` to start production server
+   - Run `pnpm build` to create production build
+   - Run `pnpm start` to start production server
    - Configure hosting (Vercel, Netlify, or custom server)
 
 4. **Security Considerations**

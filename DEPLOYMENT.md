@@ -1,99 +1,91 @@
 # ChurchCare Deployment Guide
 
+## ⚠️ Security Warning
+
+**NEVER commit actual Firebase service account credentials or API keys to git!** This project uses environment variables to store sensitive configuration.
+
 ## Prerequisites
 
-1. **Firebase Project Setup**
-   - Create a Firebase project at https://console.firebase.google.com
-   - Enable Authentication (Email/Password provider)
-   - Enable Firestore Database
-   - Generate a service account key for server-side operations
+1.  **Node.js**: `v18` or higher is required. It's recommended to use a version manager like nvm. This project includes a `.nvmrc` file, so you can run `nvm use` in the project root to switch to the correct version.
+2.  **Firebase CLI**: Install the Firebase command-line tools: `pnpm add -g firebase-tools`.
 
-2. **Environment Configuration**
-   - Copy `.env.production` to `.env`
-   - Fill in your Firebase credentials in the `.env` file
+## Environment Setup
 
-## Development Setup
+This project uses a `.env` file for managing environment variables. A `.env.example` file is provided as a template.
 
-1. **Install Dependencies**
+1.  **Copy the example file**:
    ```bash
-   npm install
+   cp .env.example .env
    ```
+   *Note: The `.env` file is listed in `.gitignore` and should never be committed to version control.*
 
-2. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-   - Server runs on http://localhost:5000
-   - Includes hot reload for development
+2.  **Get Firebase Client-side Config**:
+    1.  Go to Firebase Console → Project Settings → General.
+    2.  Scroll down to "Your apps" and select your web app.
+    3.  Under "Firebase SDK snippet", select "Config" and copy the values into your `.env` file. They are prefixed with `VITE_`.
+
+3.  **Get Firebase Server-side Config**:
+    1.  Go to Firebase Console → Project Settings → Service Accounts.
+    2.  Click "Generate new private key" and download the JSON file.
+    3.  **Important**: To avoid issues with special characters in the JSON key, it's best to store it as a Base64 string.
+        -   On macOS/Linux: `cat /path/to/your-service-account.json | base64`
+        -   On Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\your-service-account.json"))`
+    4.  Copy the resulting Base64 string into `FIREBASE_SERVICE_ACCOUNT_KEY_BASE64` in your `.env` file.
+
+4.  **Set Other Variables**:
+    -   `FIREBASE_PROJECT_ID`: Your Firebase project ID.
+    -   `NODE_ENV`: Set to `development` for local work.
+
+## Development
+
+1.  **Install Dependencies**:
+    ```bash
+    pnpm install
+    ```
+
+2.  **Start Development Server**:
+    ```bash
+    pnpm dev
+    ```
+    The application will be available at `http://localhost:5000` with hot-reloading enabled.
+
+## Firebase Project Configuration
+
+If you are setting up a new Firebase project, ensure the following are configured:
+
+-   **Authentication**: Enable the "Email/Password" sign-in provider.
+-   **Firestore**: Create a Firestore database in your project.
+-   **Security Rules**: Deploy the security rules from the project root:
+    ```bash
+    firebase deploy --only firestore:rules
+    ```
 
 ## Production Deployment
 
-1. **Build the Application**
-   ```bash
-   npm run build
-   ```
-   - Creates optimized client build in `dist/public/`
-   - Creates server bundle in `dist/index.js`
+1.  **Set Production Environment**:
+    -   For hosting platforms like Vercel, Netlify, or Heroku, set the environment variables in the platform's dashboard. Do not include the `.env` file in your deployment.
+    -   Remember to set `NODE_ENV=production`.
 
-2. **Start Production Server**
-   ```bash
-   npm start
-   ```
+2.  **Build the Application**:
+    ```bash
+    pnpm build
+    ```
+    This creates an optimized client build in `dist/public/` and a server bundle at `dist/index.js`.
 
-## Firebase Configuration
-
-### Client-side Environment Variables (Vite)
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-### Server-side Environment Variables
-```env
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
-NODE_ENV=production
-```
-
-## Firestore Security Rules
-
-Deploy the security rules from `firestore.rules`:
-
-```bash
-firebase deploy --only firestore:rules
-```
-
-## Application Features
-
-- **Authentication**: Firebase Auth with email/password
-- **Database**: Firestore for member, task, and follow-up management
-- **Real-time Updates**: Live data synchronization
-- **Responsive Design**: Works on desktop and mobile
-- **Secure API**: JWT token-based authentication
-
-## Troubleshooting
-
-1. **Environment Variables Not Loading**
-   - Ensure `.env` file is in the root directory
-   - Check that `dotenv` package is installed
-   - Verify environment variable names match exactly
-
-2. **Firebase Connection Issues**
-   - Verify Firebase project ID is correct
-   - Check service account key JSON format
-   - Ensure Firestore and Authentication are enabled
-
-3. **Build Errors**
-   - Run `npm run check` to verify TypeScript compilation
-   - Check for missing dependencies with `npm install`
+3.  **Start Production Server**:
+    ```bash
+    pnpm start
+    ```
 
 ## Security Considerations
 
-- Never commit `.env` files to version control
-- Use environment-specific Firebase projects (dev/staging/prod)
-- Regularly rotate service account keys
-- Monitor Firebase usage and security rules
+-   **Environment Variables**: Never commit `.env` files to version control. Use your hosting provider's system for production secrets.
+-   **Service Account Keys**: Rotate your Firebase service account keys regularly.
+-   **Firebase Security**: Regularly review and test your `firestore.rules` to ensure data is secure.
+-   **Monitoring**: Monitor Firebase usage and set up billing alerts to avoid unexpected costs.
+
+## Troubleshooting
+
+-   **Environment Variables Not Loading**: Ensure the `.env` file is in the project root and that you've restarted the server after changes. For client-side variables, ensure they are prefixed with `VITE_`.
+-   **Firebase Connection Issues**: Double-check that your Project ID and service account key are correct. Ensure the required Firebase services (Auth, Firestore) are enabled in the console.
+-   **Build Errors**: Run `pnpm check` to look for TypeScript errors. Ensure all dependencies are installed with `pnpm install`.
