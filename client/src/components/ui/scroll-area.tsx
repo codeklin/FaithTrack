@@ -3,21 +3,28 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 
 import { cn } from "@/lib/utils"
 
+// Create type-asserted versions of Radix components
+const _ScrollAreaPrimitiveRoot = ScrollAreaPrimitive.Root as React.FC<React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & { className?: string; children?: React.ReactNode }>;
+const _ScrollAreaPrimitiveViewport = ScrollAreaPrimitive.Viewport as React.FC<React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Viewport> & { className?: string; children?: React.ReactNode }>;
+const _ScrollAreaPrimitiveScrollAreaScrollbar = ScrollAreaPrimitive.ScrollAreaScrollbar as React.FC<React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar> & { className?: string; children?: React.ReactNode }>;
+const _ScrollAreaPrimitiveScrollAreaThumb = ScrollAreaPrimitive.ScrollAreaThumb as React.FC<React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaThumb> & { className?: string; children?: React.ReactNode }>;
+const _ScrollAreaPrimitiveCorner = ScrollAreaPrimitive.Corner as React.FC<React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Corner> & { className?: string; children?: React.ReactNode }>;
+
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, children, ...props }, ref) => (
-  <ScrollAreaPrimitive.Root
+  <_ScrollAreaPrimitiveRoot
     ref={ref}
     className={cn("relative overflow-hidden", className)}
     {...props}
   >
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+    <_ScrollAreaPrimitiveViewport className="h-full w-full rounded-[inherit]">
       {children}
-    </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
-    <ScrollAreaPrimitive.Corner />
-  </ScrollAreaPrimitive.Root>
+    </_ScrollAreaPrimitiveViewport>
+    <ScrollBar /> {/* ScrollBar is the wrapped component, uses asserted primitives internally */}
+    <_ScrollAreaPrimitiveCorner />
+  </_ScrollAreaPrimitiveRoot>
 ))
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName
 
@@ -25,7 +32,7 @@ const ScrollBar = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
 >(({ className, orientation = "vertical", ...props }, ref) => (
-  <ScrollAreaPrimitive.ScrollAreaScrollbar
+  <_ScrollAreaPrimitiveScrollAreaScrollbar
     ref={ref}
     orientation={orientation}
     className={cn(
@@ -38,8 +45,8 @@ const ScrollBar = React.forwardRef<
     )}
     {...props}
   >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
-  </ScrollAreaPrimitive.ScrollAreaScrollbar>
+    <_ScrollAreaPrimitiveScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
+  </_ScrollAreaPrimitiveScrollAreaScrollbar>
 ))
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName
 
