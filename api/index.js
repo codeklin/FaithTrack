@@ -3,8 +3,11 @@ import express from "express";
 
 // server/supabase.ts
 import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env" });
+if (process.env.NODE_ENV !== 'production') {
+  const dotenv = await import('dotenv');
+  dotenv.config({ path: ".env" });
+}
+
 var supabaseUrl = process.env.VITE_SUPABASE_URL;
 var supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseUrl || !supabaseServiceKey) {
