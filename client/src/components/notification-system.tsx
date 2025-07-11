@@ -5,8 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { Task } from "@shared/firestore-schema";
+// import type { Task } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
 import { toDate } from "@/lib/date-utils";
+
+// Define a placeholder schema and type for Task
+// This should be replaced with a proper schema based on your Supabase tables
+const taskSchema = z.object({
+  id: z.string().uuid(), // Assuming task ID is a UUID
+  title: z.string(),
+  dueDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()), // Assuming dueDate will always be present
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]), // Add other relevant statuses
+  // Add any other fields that are used by this component (e.g., priority if it affects notification type)
+});
+type Task = z.infer<typeof taskSchema>;
 
 interface Notification {
   id: string;

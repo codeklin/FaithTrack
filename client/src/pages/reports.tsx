@@ -9,7 +9,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { toDate } from "@/lib/date-utils";
-import type { Member, Task, Stats } from "@shared/firestore-schema";
+// import type { Member, Task, Stats } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  convertedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  // Add other fields if needed by this page
+});
+type Member = z.infer<typeof memberSchema>;
+
+const taskSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
+  dueDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  // Add other fields if needed by this page
+});
+type Task = z.infer<typeof taskSchema>;
+
+const statsSchema = z.object({
+  baptized: z.number().optional(),
+  pendingFollowups: z.number().optional(),
+  newConverts: z.number().optional(),
+  inBibleStudy: z.number().optional(),
+  inSmallGroup: z.number().optional(),
+  // Add other stats fields if used
+});
+type Stats = z.infer<typeof statsSchema>;
+
 
 export default function Reports() {
   const [reportPeriod, setReportPeriod] = useState("monthly");

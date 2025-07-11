@@ -3,19 +3,15 @@ import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "@/lib/utils"
 
-// Create type-asserted versions of Radix components
-const _TabsPrimitiveRoot = TabsPrimitive.Root as React.FC<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> & { className?: string; children?: React.ReactNode }>;
-const _TabsPrimitiveList = TabsPrimitive.List as React.FC<React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & { className?: string; children?: React.ReactNode }>;
-const _TabsPrimitiveTrigger = TabsPrimitive.Trigger as React.FC<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & { className?: string; children?: React.ReactNode }>;
-const _TabsPrimitiveContent = TabsPrimitive.Content as React.FC<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & { className?: string; children?: React.ReactNode }>;
+// Aliases removed, will use primitives directly
 
-const Tabs = _TabsPrimitiveRoot // Export the asserted version
+const Tabs = TabsPrimitive.Root // Use primitive directly
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
-  <_TabsPrimitiveList
+  <TabsPrimitive.List // Use primitive directly
     ref={ref}
     className={cn(
       "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
@@ -30,7 +26,7 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
-  <_TabsPrimitiveTrigger
+  <TabsPrimitive.Trigger // Use primitive directly
     ref={ref}
     className={cn(
       "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
@@ -45,7 +41,7 @@ const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <_TabsPrimitiveContent
+  <TabsPrimitive.Content // Use primitive directly
     ref={ref}
     className={cn(
       "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

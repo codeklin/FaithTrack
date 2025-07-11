@@ -9,8 +9,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import type { Member, Task, Stats } from "@shared/firestore-schema";
+// import type { Member, Task, Stats } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
 import { Users, UserPlus, Heart, BookOpen, Target } from "lucide-react";
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  // Add other fields if needed by this page
+});
+type Member = z.infer<typeof memberSchema>;
+
+const taskSchema = z.object({
+  id: z.string().uuid(),
+  // Add other fields if needed by this page
+});
+type Task = z.infer<typeof taskSchema>;
+
+const statsSchema = z.object({
+  totalMembers: z.number().optional(),
+  newConverts: z.number().optional(),
+  baptized: z.number().optional(),
+  inBibleStudy: z.number().optional(),
+  inSmallGroup: z.number().optional(),
+  activeMembers: z.number().optional(),
+  pendingTasks: z.number().optional(),
+  completedTasks: z.number().optional(),
+  pendingFollowups: z.number().optional(),
+  // Add other stats fields if used
+});
+type Stats = z.infer<typeof statsSchema>;
+
 
 export default function Analytics() {
   const { currentUser } = useAuth();
