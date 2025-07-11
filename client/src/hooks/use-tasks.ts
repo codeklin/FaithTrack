@@ -1,6 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
-import type { Task, InsertTask } from "@shared/firestore-schema";
+// import type { Task, InsertTask } from "@shared/firestore-schema"; // Removed Firebase-related import
+
+// Define generic types for Task and InsertTask, or replace with Supabase-specific types
+interface Task {
+  id: number;
+  user_id: string;
+  task: string;
+  is_complete: boolean;
+  created_at: string;
+}
+
+interface InsertTask {
+  user_id: string;
+  task: string;
+  is_complete?: boolean;
+}
 
 export function useTasks() {
   return useQuery<Task[]>({
