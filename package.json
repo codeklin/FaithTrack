@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js --external:firebase-admin",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js",
     "start": "cross-env NODE_ENV=production node api/index.js",
     "vercel-build": "pnpm build",
     "check": "tsc"
@@ -51,8 +51,6 @@
     "dotenv": "^17.0.1",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
-    "firebase": "^11.10.0",
-    "firebase-admin": "^13.4.0",
     "framer-motion": "^11.13.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.453.0",

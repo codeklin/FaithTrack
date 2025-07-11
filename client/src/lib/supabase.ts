@@ -1,8 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
-// Replace with your actual Supabase project URL and anon key
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "YOUR_SUPABASE_URL";
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "YOUR_SUPABASE_ANON_KEY";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL and Anon Key must be defined in .env file');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
