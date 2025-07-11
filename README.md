@@ -44,9 +44,8 @@ A comprehensive Progressive Web Application designed to help churches track and 
 ### Backend
 - **Node.js** with Express.js
 - **TypeScript** for type safety
-- **Firebase Firestore** for database operations
-- **Firebase Authentication** for user authentication
-- **Firebase Admin SDK** for server-side operations
+- **Supabase** for database operations and authentication
+- **Supabase Client Library** for server-side operations (if applicable, or custom API)
 
 ### Development Tools
 - **TSX** for TypeScript execution
@@ -56,8 +55,8 @@ A comprehensive Progressive Web Application designed to help churches track and 
 ## 📋 Prerequisites
 
 - **Node.js** (v18 or higher)
-- **npm** or **yarn**
-- **Firebase project** with Firestore and Authentication enabled
+- **npm** or **yarn** (or **pnpm** as used in logs)
+- **Supabase project** with a database and Authentication enabled
 
 ## 🚀 Quick Start
 
@@ -70,35 +69,24 @@ cd ChurchCare
 ### 2. Install Dependencies
 ```bash
 npm install --legacy-peer-deps
+# or pnpm install if you are using pnpm
 ```
 
-### 3. Firebase Setup
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Firestore Database and Authentication
-3. Generate a service account key for server-side operations
-4. Copy your Firebase configuration
+### 3. Supabase Setup
+1. Create a Supabase project at [Supabase Dashboard](https://supabase.com/dashboard).
+2. Under "Project Settings" > "API", find your Project URL and anon key.
+3. (Optional) If you need server-side operations with elevated privileges, get your service_role key.
+4. Set up your database schema. You might need to run migrations or use the Supabase table editor.
 
 ### 4. Environment Setup
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (or ensure your environment variables are set):
 ```env
-# Firebase Configuration
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Firebase Admin SDK (for server-side)
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your_project_id",...}
-
-# Client-side Firebase Configuration (for Vite)
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+# (Optional) For server-side operations requiring elevated privileges
+# SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # Application Configuration
 NODE_ENV=development
@@ -129,37 +117,68 @@ ChurchCare/
 │   ├── db.ts              # Database connection
 │   └── index.ts           # Server entry point
 ├── shared/                # Shared types and schemas
-│   └── schema.ts          # Database schema and TypeScript types
-├── migrations/            # Database migration files
+│   └── firestore-schema.ts # Database schema and TypeScript types (consider renaming to db-schema.ts)
+├── migrations/            # Database migration files (Supabase uses its own migration system)
 └── package.json           # Project dependencies and scripts
 ```
 
-## 🗄 Firestore Database Schema
+## 🗄 Supabase Database Schema (Example - adjust as needed)
 
-### Members Collection
-- Personal information (name, email, phone, address)
-- Conversion and baptism tracking
-- Bible study and small group participation
-- Staff assignment and notes
-- Status progression (new → contacted → baptized → active)
-- Document ID serves as unique identifier
+### Members Table (`members`)
+- `id` (uuid, primary key)
+- `name` (text, not null)
+- `email` (text, unique)
+- `phone` (text)
+- `address` (text)
+- `date_of_birth` (date)
+- `membership_status` (enum: "active", "inactive", "pending", default: "active")
+- `join_date` (date)
+- `converted_date` (timestamp with time zone, default: now())
+- `baptized` (boolean, default: false)
+- `baptism_date` (date)
+- `in_bible_study` (boolean, default: false)
+- `in_small_group` (boolean, default: false)
+- `notes` (text)
+- `assigned_staff_id` (uuid, foreign key to users table)
+- `status` (enum: "new", "contacted", "baptized", "active", default: "new")
+- `avatar_url` (text)
+- `created_at` (timestamp with time zone, default: now())
+- `updated_at` (timestamp with time zone, default: now())
 
-### Tasks Collection
-- Task management with priorities and due dates
-- Member association via document ID references
-- Completion tracking and reminder system
-- Firestore timestamps for due dates and completion
+### Tasks Table (`tasks`)
+- `id` (uuid, primary key)
+- `title` (text, not null)
+- `description` (text)
+- `member_id` (uuid, foreign key to members table)
+- `assigned_to_id` (uuid, foreign key to users table)
+- `priority` (enum: "high", "medium", "low", default: "medium")
+- `status` (enum: "pending", "completed", "overdue", default: "pending")
+- `due_date` (timestamp with time zone)
+- `completed_date` (timestamp with time zone)
+- `reminder_sent` (boolean, default: false)
+- `created_at` (timestamp with time zone, default: now())
+- `updated_at` (timestamp with time zone, default: now())
 
-### Follow-ups Collection
-- Scheduled follow-up activities
-- Multiple contact methods (call, visit, email, text)
-- Next follow-up scheduling and completion tracking
-- Member association via document ID references
+### Follow-ups Table (`follow_ups`)
+- `id` (uuid, primary key)
+- `member_id` (uuid, foreign key to members table, not null)
+- `type` (enum: "call", "visit", "email", "text")
+- `notes` (text)
+- `scheduled_date` (timestamp with time zone)
+- `completed_date` (timestamp with time zone)
+- `next_follow_up_date` (timestamp with time zone)
+- `created_at` (timestamp with time zone, default: now())
+- `updated_at` (timestamp with time zone, default: now())
 
-### Users Collection
-- Staff authentication via Firebase Auth
-- User profiles with roles and permissions
-- Document ID matches Firebase Auth UID
+### Users Table (Supabase Auth users, potentially a public `users` table for profiles)
+- Supabase Auth handles user authentication (`auth.users` table).
+- You might have a public `users` table for profile information linked by user ID:
+  - `id` (uuid, primary key, matches auth.users.id)
+  - `email` (text, unique)
+  - `display_name` (text)
+  - `role` (enum: "admin", "staff", "volunteer", default: "staff")
+  - `created_at` (timestamp with time zone, default: now())
+  - `updated_at` (timestamp with time zone, default: now())
 
 ## 🔧 Available Scripts
 
@@ -179,12 +198,12 @@ ChurchCare is built as a PWA with:
 
 ## 🔐 Authentication
 
-The application uses Firebase Authentication:
-- Email/password authentication
-- JWT token-based authentication
-- Protected API routes with Firebase Admin SDK
-- Automatic user session management
-- Secure authentication flow with Firebase Auth
+The application will use Supabase Authentication:
+- Email/password authentication (and other providers Supabase supports)
+- JWT token-based authentication (handled by Supabase)
+- Protected API routes (can be implemented with Supabase JWTs and server-side logic or Row Level Security)
+- Automatic user session management (via Supabase client libraries)
+- Secure authentication flow with Supabase
 
 ## 🚀 Deployment
 
@@ -196,24 +215,12 @@ npm run start
 
 ### Environment Variables for Production
 ```env
-# Firebase Configuration (same as development)
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
+# Supabase Configuration
+VITE_SUPABASE_URL=your_production_supabase_url
+VITE_SUPABASE_ANON_KEY=your_production_supabase_anon_key
 
-# Firebase Admin SDK
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
-
-# Client-side Firebase Configuration
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+# (Optional) For server-side operations requiring elevated privileges
+# SUPABASE_SERVICE_ROLE_KEY=your_production_supabase_service_role_key
 
 NODE_ENV=production
 ```
@@ -233,23 +240,22 @@ This creates:
 npm start
 ```
 
-### Deploy Firestore Security Rules
-```bash
-firebase deploy --only firestore:rules
-```
+### Database Migrations and Security
+- Use Supabase's built-in migration tools or schema management.
+- Configure Row Level Security (RLS) policies in Supabase for data access control.
 
-For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md) (This file may also need updates for Supabase).
 
-## ✅ Production Readiness Checklist
+## ✅ Production Readiness Checklist (Revised for Supabase)
 
-- [x] Firebase Firestore database configured
-- [x] Firebase Authentication enabled
-- [x] Environment variables properly loaded
-- [x] TypeScript compilation errors resolved
-- [x] Production build working
-- [x] Security rules defined
-- [x] Error handling implemented
-- [x] API authentication middleware active
+- [ ] Supabase Project and Database configured
+- [ ] Supabase Authentication enabled and configured
+- [ ] Environment variables for Supabase properly loaded (URL, Anon Key, Service Key if used)
+- [ ] TypeScript compilation errors resolved
+- [ ] Production build working
+- [ ] Row Level Security (RLS) policies defined and active
+- [ ] Error handling implemented
+- [ ] API authentication middleware/logic updated for Supabase JWTs
 
 ## 🤝 Contributing
 

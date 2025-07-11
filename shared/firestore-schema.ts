@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { Timestamp } from "firebase/firestore";
+// import { Timestamp } from "firebase/firestore";
+
+// Using string for timestamps, Supabase typically uses ISO strings.
+// Consider z.string().datetime() for stricter validation or preprocess with new Date() for Date objects.
+const dateOrIsoStringSchema = z.union([z.date(), z.string()]); // Use z.string().datetime() for ISO 8601
+const optionalDateOrIsoStringSchema = z.union([z.date(), z.string()]).optional();
 
 // Firestore document schemas
 export const memberSchema = z.object({
@@ -8,20 +13,20 @@ export const memberSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
   address: z.string().optional(),
-  dateOfBirth: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
+  dateOfBirth: optionalDateOrIsoStringSchema,
   membershipStatus: z.enum(["active", "inactive", "pending"]).default("active"),
-  joinDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
-  convertedDate: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
+  joinDate: optionalDateOrIsoStringSchema,
+  convertedDate: dateOrIsoStringSchema.default(() => new Date().toISOString()), // Default to ISO string
   baptized: z.boolean().default(false),
-  baptismDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
+  baptismDate: optionalDateOrIsoStringSchema,
   inBibleStudy: z.boolean().default(false),
   inSmallGroup: z.boolean().default(false),
   notes: z.string().optional(),
   assignedStaff: z.string().optional(),
   status: z.enum(["new", "contacted", "baptized", "active"]).default("new"),
   avatar: z.string().optional(),
-  createdAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
-  updatedAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
+  createdAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
+  updatedAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
 });
 
 export const taskSchema = z.object({
@@ -32,11 +37,11 @@ export const taskSchema = z.object({
   assignedTo: z.string().optional(),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   status: z.enum(["pending", "completed", "overdue"]).default("pending"),
-  dueDate: z.union([z.date(), z.instanceof(Timestamp)]),
-  completedDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
+  dueDate: dateOrIsoStringSchema,
+  completedDate: optionalDateOrIsoStringSchema,
   reminderSent: z.boolean().default(false),
-  createdAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
-  updatedAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
+  createdAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
+  updatedAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
 });
 
 export const followUpSchema = z.object({
@@ -44,11 +49,11 @@ export const followUpSchema = z.object({
   memberId: z.string().min(1, "Member ID is required"), // Reference to member document ID
   type: z.enum(["call", "visit", "email", "text"]),
   notes: z.string().optional(),
-  scheduledDate: z.union([z.date(), z.instanceof(Timestamp)]),
-  completedDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
-  nextFollowUp: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
-  createdAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
-  updatedAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
+  scheduledDate: dateOrIsoStringSchema,
+  completedDate: optionalDateOrIsoStringSchema,
+  nextFollowUp: optionalDateOrIsoStringSchema,
+  createdAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
+  updatedAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
 });
 
 export const userSchema = z.object({
@@ -56,8 +61,8 @@ export const userSchema = z.object({
   email: z.string().email(),
   displayName: z.string().optional(),
   role: z.enum(["admin", "staff", "volunteer"]).default("staff"),
-  createdAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
-  updatedAt: z.union([z.date(), z.instanceof(Timestamp)]).default(() => new Date()),
+  createdAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
+  updatedAt: dateOrIsoStringSchema.default(() => new Date().toISOString()),
 });
 
 // Insert schemas (for creating new documents)
@@ -66,12 +71,12 @@ export const insertMemberSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
   address: z.string().optional(),
-  dateOfBirth: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
+  dateOfBirth: optionalDateOrIsoStringSchema,
   membershipStatus: z.enum(["active", "inactive", "pending"]).optional().default("active"),
-  joinDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
-  convertedDate: z.union([z.date(), z.instanceof(Timestamp)]).optional().default(() => new Date()),
+  joinDate: optionalDateOrIsoStringSchema,
+  convertedDate: optionalDateOrIsoStringSchema.default(() => new Date().toISOString()),
   baptized: z.boolean().optional().default(false),
-  baptismDate: z.union([z.date(), z.instanceof(Timestamp)]).optional(),
+  baptismDate: optionalDateOrIsoStringSchema,
   inBibleStudy: z.boolean().optional().default(false),
   inSmallGroup: z.boolean().optional().default(false),
   notes: z.string().optional(),
@@ -87,7 +92,7 @@ export const insertTaskSchema = z.object({
   assignedTo: z.string().optional(),
   priority: z.enum(["high", "medium", "low"]).optional().default("medium"),
   status: z.enum(["pending", "completed", "overdue"]).optional().default("pending"),
-  dueDate: z.union([z.date(), z.instanceof(Timestamp)]),
+  dueDate: dateOrIsoStringSchema,
 });
 
 export const insertFollowUpSchema = followUpSchema.omit({
@@ -154,20 +159,20 @@ export const COLLECTIONS = {
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date
-export const timestampToDate = (timestamp: any): Date => {
-  if (timestamp && typeof timestamp.toDate === 'function') {
-    return timestamp.toDate();
-  }
-  if (timestamp instanceof Date) {
-    return timestamp;
-  }
-  return new Date(timestamp);
-};
+// export const timestampToDate = (timestamp: any): Date => {
+//   if (timestamp && typeof timestamp.toDate === 'function') {
+//     return timestamp.toDate();
+//   }
+//   if (timestamp instanceof Date) {
+//     return timestamp;
+//   }
+//   return new Date(timestamp);
+// };
 
 // Helper function to convert Date to Firestore Timestamp
-export const dateToTimestamp = (date: Date | string): Timestamp => {
-  if (typeof date === 'string') {
-    return Timestamp.fromDate(new Date(date));
-  }
-  return Timestamp.fromDate(date);
-};
+// export const dateToTimestamp = (date: Date | string): Timestamp => {
+//   if (typeof date === 'string') {
+//     return Timestamp.fromDate(new Date(date));
+//   }
+//   return Timestamp.fromDate(date);
+// };
