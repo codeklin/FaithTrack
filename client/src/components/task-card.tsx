@@ -4,8 +4,38 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { Task, Member } from "@shared/firestore-schema";
+// import type { Task, Member } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
 import { toDate } from "@/lib/date-utils";
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  // Add other member fields if needed by the component
+});
+type Member = z.infer<typeof memberSchema>;
+
+const taskSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  memberId: z.string().uuid().optional().nullable(),
+  priority: z.enum(["low", "medium", "high"]),
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
+  dueDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  completedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date().optional().nullable()),
+  // Add any other fields used by this component
+});
+type Task = z.infer<typeof taskSchema>;
+
 
 interface TaskCardProps {
   task: Task;

@@ -2,7 +2,32 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertMemberSchema, type InsertMember } from "@shared/firestore-schema";
+// import { insertMemberSchema, type InsertMember } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define a placeholder schema and type for InsertMember
+// This should be replaced with a proper schema based on your Supabase tables
+const insertMemberSchema = z.object({
+  name: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address").optional().or(z.literal('')),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  notes: z.string().optional(),
+  assignedStaff: z.string().optional(), // Consider if this should be a UUID foreign key
+  status: z.enum(["new", "contacted", "active", "inactive"]).default("new"),
+  avatar: z.string().url().optional().or(z.literal('')),
+  membershipStatus: z.enum(["pending", "member", "former"]).default("pending"),
+  convertedDate: z.preprocess((arg) => {
+    if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
+    return undefined; // Ensure undefined is returned if not parsable, so optional works as expected
+  }, z.date().optional()),
+  baptized: z.boolean().default(false),
+  inBibleStudy: z.boolean().default(false),
+  inSmallGroup: z.boolean().default(false),
+  // Example: user_id: z.string().uuid().optional(), // If you link to a user
+});
+type InsertMember = z.infer<typeof insertMemberSchema>;
+
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {

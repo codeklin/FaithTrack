@@ -2,7 +2,33 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertTaskSchema, type InsertTask, type Member } from "@shared/firestore-schema";
+// import { insertTaskSchema, type InsertTask, type Member } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(), // Assuming member ID is a UUID
+  name: z.string(),
+  // Add other member fields if needed by the component for display in SelectItem
+});
+type Member = z.infer<typeof memberSchema>;
+
+const insertTaskSchema = z.object({
+  title: z.string().min(1, "Task title is required"),
+  description: z.string().optional().or(z.literal('')),
+  memberId: z.string().uuid({ message: "Invalid member ID" }).optional(),
+  assignedTo: z.string().optional(), // Consider if this should be a UUID foreign key to a users table
+  priority: z.enum(["low", "medium", "high"]).default("medium"),
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]).default("pending"),
+  dueDate: z.preprocess((arg) => {
+    if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
+    return undefined; // Ensure undefined if not parsable, for optional fields
+  }, z.date().optional()),
+  // Example: created_by_user_id: z.string().uuid().optional(), // If you link to a user who created task
+});
+type InsertTask = z.infer<typeof insertTaskSchema>;
+
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {

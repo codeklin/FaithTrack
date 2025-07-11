@@ -17,7 +17,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-import type { Member } from "@shared/firestore-schema";
+// import type { Member } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define a placeholder schema and type for Member
+// This should be replaced with a proper schema based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(), // Assuming member ID is a UUID
+  name: z.string(),
+  email: z.string().email().optional().nullable(),
+  avatar: z.string().url().optional().nullable(),
+  convertedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()), // Assuming convertedDate will always be present
+  baptized: z.boolean().optional().default(false),
+  inBibleStudy: z.boolean().optional().default(false),
+  inSmallGroup: z.boolean().optional().default(false),
+  status: z.enum(["new", "contacted", "active", "inactive"]).default("new"), // Add other relevant statuses
+  // Add any other fields that are used by this component
+});
+type Member = z.infer<typeof memberSchema>;
 
 interface MemberCardProps {
   member: Member;

@@ -44,9 +44,8 @@ A comprehensive Progressive Web Application designed to help churches track and 
 ### Backend
 - **Node.js** with Express.js
 - **TypeScript** for type safety
-- **Firebase Firestore** for database operations
-- **Firebase Authentication** for user authentication
-- **Firebase Admin SDK** for server-side operations
+- **Supabase** for database operations and authentication (PostgreSQL)
+- **Supabase SDK** for server-side operations
 
 ### Development Tools
 - **TSX** for TypeScript execution
@@ -56,8 +55,8 @@ A comprehensive Progressive Web Application designed to help churches track and 
 ## 📋 Prerequisites
 
 - **Node.js** (v18 or higher)
-- **npm** or **yarn**
-- **Firebase project** with Firestore and Authentication enabled
+- **pnpm** (as per `pnpm-lock.yaml` and `vercel-build` script)
+- **Supabase project** with a PostgreSQL database and Authentication enabled
 
 ## 🚀 Quick Start
 
@@ -69,36 +68,24 @@ cd ChurchCare
 
 ### 2. Install Dependencies
 ```bash
-npm install --legacy-peer-deps
+pnpm install
 ```
 
-### 3. Firebase Setup
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Firestore Database and Authentication
-3. Generate a service account key for server-side operations
-4. Copy your Firebase configuration
+### 3. Supabase Setup
+1. Create a Supabase project at [Supabase Dashboard](https://supabase.com/dashboard).
+2. Under "Project Settings" > "API", find your Project URL and anon key.
+3. You'll also need the Service Role Key for server-side operations (handle with care).
+4. Set up your database schema. You might need to run migrations if you have existing SQL schema files (see `migrations/` directory if present).
 
 ### 4. Environment Setup
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (refer to `.env.example`):
 ```env
-# Firebase Configuration
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
+# For Vite (client-side) - VITE_ prefix is important
+VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 
-# Firebase Admin SDK (for server-side)
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"your_project_id",...}
-
-# Client-side Firebase Configuration (for Vite)
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+# For Server (backend)
+SUPABASE_SERVICE_ROLE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY"
 
 # Application Configuration
 NODE_ENV=development
@@ -106,7 +93,7 @@ NODE_ENV=development
 
 ### 5. Start Development Server
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 The application will be available at `http://localhost:5000`
@@ -128,46 +115,66 @@ ChurchCare/
 │   ├── storage.ts         # Database operations
 │   ├── db.ts              # Database connection
 │   └── index.ts           # Server entry point
-├── shared/                # Shared types and schemas
-│   └── schema.ts          # Database schema and TypeScript types
-├── migrations/            # Database migration files
+├── shared/                # Shared types and schemas (if any, could be Supabase specific types)
+│   └── schema.ts          # Example: Zod schemas for validation, or Supabase generated types
+├── migrations/            # Database migration files (e.g., for Supabase CLI)
 └── package.json           # Project dependencies and scripts
 ```
 
-## 🗄 Firestore Database Schema
+## 🗄 Supabase Database Schema (Example - adapt to your actual schema)
 
-### Members Collection
-- Personal information (name, email, phone, address)
-- Conversion and baptism tracking
-- Bible study and small group participation
-- Staff assignment and notes
-- Status progression (new → contacted → baptized → active)
-- Document ID serves as unique identifier
+Supabase uses PostgreSQL. Your schema would be defined using SQL.
+For example, you might have tables like:
 
-### Tasks Collection
-- Task management with priorities and due dates
-- Member association via document ID references
-- Completion tracking and reminder system
-- Firestore timestamps for due dates and completion
+### `members` Table
+- `id` (uuid, primary key)
+- `created_at` (timestamp with time zone)
+- `name` (text)
+- `email` (text, unique)
+- `phone` (text)
+- `address` (text)
+- `conversion_date` (date)
+- `baptism_status` (text)
+- `staff_assigned_id` (uuid, foreign key to `users` table)
+- ... other relevant fields
 
-### Follow-ups Collection
-- Scheduled follow-up activities
-- Multiple contact methods (call, visit, email, text)
-- Next follow-up scheduling and completion tracking
-- Member association via document ID references
+### `tasks` Table
+- `id` (uuid, primary key)
+- `created_at` (timestamp with time zone)
+- `member_id` (uuid, foreign key to `members` table)
+- `description` (text)
+- `priority` (text)
+- `due_date` (timestamp with time zone)
+- `completed_at` (timestamp with time zone, nullable)
+- ... other relevant fields
 
-### Users Collection
-- Staff authentication via Firebase Auth
-- User profiles with roles and permissions
-- Document ID matches Firebase Auth UID
+### `follow_ups` Table
+- `id` (uuid, primary key)
+- `member_id` (uuid, foreign key to `members` table)
+- `method` (text e.g., 'call', 'visit')
+- `scheduled_date` (timestamp with time zone)
+- `completed_at` (timestamp with time zone, nullable)
+- ... other relevant fields
 
-## 🔧 Available Scripts
+### `users` Table (Supabase Auth users are in `auth.users`)
+- This table might be a public `profiles` table linked to `auth.users` via user ID.
+- `id` (uuid, primary key, typically references `auth.users.id`)
+- `full_name` (text)
+- `role` (text, e.g., 'staff', 'admin')
+- ... other profile-specific fields
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run check` - TypeScript type checking
-- `npm run db:push` - Push database schema changes
+## 🔧 Available Scripts (using pnpm)
+
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm check` - TypeScript type checking
+- `pnpm vercel-build` - Vercel specific build command (includes `pnpm build`)
+- If using Supabase CLI for migrations:
+  - `supabase link --project-ref <your-project-id>`
+  - `supabase db push` (if using local changes without migration files)
+  - `supabase migration new <migration_name>`
+  - `supabase db reset` (for local development)
 
 ## 📱 Progressive Web App
 
@@ -179,41 +186,31 @@ ChurchCare is built as a PWA with:
 
 ## 🔐 Authentication
 
-The application uses Firebase Authentication:
-- Email/password authentication
-- JWT token-based authentication
-- Protected API routes with Firebase Admin SDK
-- Automatic user session management
-- Secure authentication flow with Firebase Auth
+The application uses Supabase Authentication:
+- Email/password authentication (can be extended with OAuth providers like Google, GitHub etc.)
+- JWT token-based authentication (Supabase issues JWTs)
+- Protected API routes (can be implemented using Supabase SDK on the server or by verifying JWTs)
+- Automatic user session management (handled by Supabase client libraries)
+- Secure authentication flow with Supabase Auth, including Row Level Security (RLS) on your database tables.
 
 ## 🚀 Deployment
 
 ### Production Build
 ```bash
-npm run build
-npm run start
+pnpm build
+# This typically runs `vite build` and esbuild for the server as defined in package.json scripts.
+# The output is usually in `dist/` or `api/` based on your build script.
 ```
 
 ### Environment Variables for Production
+Create a `.env.production` file or set environment variables in your hosting provider:
 ```env
-# Firebase Configuration (same as development)
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
+# Client-side Supabase Configuration (for Vite)
+VITE_SUPABASE_URL="YOUR_PRODUCTION_SUPABASE_URL"
+VITE_SUPABASE_ANON_KEY="YOUR_PRODUCTION_SUPABASE_ANON_KEY"
 
-# Firebase Admin SDK
-FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
-
-# Client-side Firebase Configuration
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+# Server-side Supabase Configuration
+SUPABASE_SERVICE_ROLE_KEY="YOUR_PRODUCTION_SUPABASE_SERVICE_ROLE_KEY" # Keep this secret!
 
 NODE_ENV=production
 ```
@@ -222,34 +219,37 @@ NODE_ENV=production
 
 ### Build the Application
 ```bash
-npm run build
+pnpm vercel-build
+# Or your specific build command e.g., pnpm build
 ```
 This creates:
-- Optimized client build in `dist/public/`
-- Server bundle in `dist/index.js`
+- Optimized client build (e.g., in `dist/client/` or `dist/public/`)
+- Server bundle (e.g., in `api/index.js` or `dist/server/`)
 
 ### Start Production Server
 ```bash
-npm start
+pnpm start
+# This usually runs `node api/index.js` or your production server entry point.
 ```
 
-### Deploy Firestore Security Rules
-```bash
-firebase deploy --only firestore:rules
-```
+### Supabase Database Migrations & Policies
+- Apply database migrations using Supabase CLI: `supabase db push` (if you have local changes) or apply migrations from your `supabase/migrations` folder.
+- Ensure Row Level Security (RLS) policies are enabled and correctly configured on your Supabase tables for data protection.
 
-For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+For detailed deployment instructions, refer to your hosting provider's documentation (e.g., Vercel, Netlify) and Supabase's deployment guides.
 
-## ✅ Production Readiness Checklist
+## ✅ Production Readiness Checklist (Supabase)
 
-- [x] Firebase Firestore database configured
-- [x] Firebase Authentication enabled
-- [x] Environment variables properly loaded
-- [x] TypeScript compilation errors resolved
-- [x] Production build working
-- [x] Security rules defined
-- [x] Error handling implemented
-- [x] API authentication middleware active
+- [ ] Supabase project created and database schema migrated/set up.
+- [ ] Supabase Authentication configured (providers, email templates).
+- [ ] Row Level Security (RLS) policies enabled and tested on all relevant tables.
+- [ ] Environment variables for Supabase (URL, anon key, service role key) are correctly set in production.
+- [ ] TypeScript compilation errors resolved.
+- [ ] Production build (`pnpm build` or `pnpm vercel-build`) working.
+- [ ] Error handling implemented throughout the application.
+- [ ] API authentication/authorization middleware (using Supabase session/JWT) active and tested.
+- [ ] Database backups configured in Supabase (automatic for paid tiers, consider for free tier).
+- [ ] Test application thoroughly in a staging or production-like environment.
 
 ## 🤝 Contributing
 

@@ -1,6 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { auth } from "@shared/firebase-config";
-import type { User as FirebaseUser } from 'firebase/auth'; // Import User type for clarity
+import { supabase } from '@/lib/supabase'; // Import Supabase client
+// import type { User as FirebaseUser } from 'firebase/auth'; // No longer needed
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -9,35 +9,30 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Helper function to get the current user, waiting if auth state is initializing
-function getCurrentUserWhenAvailable(): Promise<FirebaseUser | null> {
-  return new Promise((resolve) => {
-    if (auth.currentUser) {
-      resolve(auth.currentUser);
-    } else {
-      const unsubscribe = auth.onAuthStateChanged(user => {
-        unsubscribe(); // Unsubscribe after first callback
-        resolve(user);
-      });
-    }
-  });
+// Helper function to get the current Supabase session
+// Supabase's getSession() is already asynchronous and returns the current session.
+// No need for a complex "whenAvailable" logic as with Firebase's onAuthStateChanged for one-off checks.
+async function getCurrentSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error("Error getting Supabase session:", error);
+    return null;
+  }
+  return data.session;
 }
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
-  const user = await getCurrentUserWhenAvailable(); // Wait for user to be available
-  if (user) {
-    try {
-      const token = await user.getIdToken();
-      return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-    } catch (error) {
-      console.error("Error fetching ID token in getAuthHeaders:", error);
-      // Fall through to return headers without Authorization if token fetch fails
-    }
+  const session = await getCurrentSession();
+
+  if (session?.access_token) {
+    return {
+      'Authorization': `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json'
+    };
   }
-  // If no user, or token fetch failed, only Content-Type is returned.
+
+  // If no session or access token, only Content-Type is returned.
+  // This maintains previous behavior for unauthenticated requests.
   return {
     'Content-Type': 'application/json'
   };

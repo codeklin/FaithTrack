@@ -6,7 +6,36 @@ import MobileNavigation from "@/components/layout/mobile-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { apiRequest } from "@/lib/api";
-import type { Member, Stats } from "@shared/firestore-schema";
+// import type { Member, Stats } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  avatar: z.string().url().optional().nullable(),
+  convertedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  baptized: z.boolean().optional().default(false),
+  inBibleStudy: z.boolean().optional().default(false),
+  inSmallGroup: z.boolean().optional().default(false),
+  status: z.enum(["new", "contacted", "active", "inactive"]).default("new"),
+  // Add any other fields used by this page
+});
+type Member = z.infer<typeof memberSchema>;
+
+const statsSchema = z.object({
+  newConverts: z.number().optional(),
+  baptized: z.number().optional(),
+  inBibleStudy: z.number().optional(),
+  inSmallGroup: z.number().optional(),
+  // Add other stats fields if used by this page
+});
+type Stats = z.infer<typeof statsSchema>;
+
 
 export default function ProgressPage() {
   const { data: stats, isLoading } = useQuery<Stats>({

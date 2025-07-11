@@ -5,19 +5,16 @@ import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
 
 import { cn } from "@/lib/utils"
 
-// Create type-asserted versions of Radix components
-const _HoverCardPrimitiveRoot = HoverCardPrimitive.Root as React.FC<React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Root> & { className?: string; children?: React.ReactNode }>;
-const _HoverCardPrimitiveTrigger = HoverCardPrimitive.Trigger as React.FC<React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Trigger> & { className?: string; children?: React.ReactNode }>;
-const _HoverCardPrimitiveContent = HoverCardPrimitive.Content as React.FC<React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content> & { className?: string; children?: React.ReactNode }>;
+// Aliases removed, will use primitives directly
 
-const HoverCard = _HoverCardPrimitiveRoot
-const HoverCardTrigger = _HoverCardPrimitiveTrigger
+const HoverCard = HoverCardPrimitive.Root // Use primitive directly
+const HoverCardTrigger = HoverCardPrimitive.Trigger // Use primitive directly
 
 const HoverCardContent = React.forwardRef<
   React.ElementRef<typeof HoverCardPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-  <_HoverCardPrimitiveContent
+  <HoverCardPrimitive.Content // Use primitive directly
     ref={ref}
     align={align}
     sideOffset={sideOffset}

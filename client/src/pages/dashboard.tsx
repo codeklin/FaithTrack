@@ -14,7 +14,58 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Calendar, CheckCircle, Send, BarChart3, Users, UserPlus, Clock, TrendingUp } from "lucide-react";
-import type { Member, Task, Stats } from "@shared/firestore-schema";
+// import type { Member, Task, Stats } from "@shared/firestore-schema"; // Removed Firebase schema
+import { z } from "zod"; // Import Zod
+
+// Define placeholder schemas and types
+// These should be replaced with proper schemas based on your Supabase tables
+const memberSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email().optional().nullable(),
+  avatar: z.string().url().optional().nullable(),
+  convertedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  baptized: z.boolean().optional().default(false),
+  inBibleStudy: z.boolean().optional().default(false),
+  inSmallGroup: z.boolean().optional().default(false),
+  status: z.enum(["new", "contacted", "active", "inactive"]).default("new"),
+});
+type Member = z.infer<typeof memberSchema>;
+
+const taskSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  memberId: z.string().uuid().optional().nullable(),
+  priority: z.enum(["low", "medium", "high"]),
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
+  dueDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date()),
+  completedDate: z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
+    return undefined;
+  }, z.date().optional().nullable()),
+});
+type Task = z.infer<typeof taskSchema>;
+
+const statsSchema = z.object({
+  totalMembers: z.number().optional(),
+  newConverts: z.number().optional(),
+  baptized: z.number().optional(),
+  inBibleStudy: z.number().optional(),
+  inSmallGroup: z.number().optional(),
+  activeMembers: z.number().optional(),
+  pendingTasks: z.number().optional(),
+  completedTasks: z.number().optional(),
+  pendingFollowups: z.number().optional(),
+});
+type Stats = z.infer<typeof statsSchema>;
+
 
 export default function Dashboard() {
   const [showAddMember, setShowAddMember] = useState(false);

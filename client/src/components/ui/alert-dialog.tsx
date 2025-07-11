@@ -4,13 +4,7 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-// Create type-asserted versions of Radix components
-const _AlertDialogPrimitiveOverlay = AlertDialogPrimitive.Overlay as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay> & { className?: string }>;
-const _AlertDialogPrimitiveContent = AlertDialogPrimitive.Content as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content> & { className?: string; children?: React.ReactNode }>;
-const _AlertDialogPrimitiveTitle = AlertDialogPrimitive.Title as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title> & { className?: string; children?: React.ReactNode }>;
-const _AlertDialogPrimitiveDescription = AlertDialogPrimitive.Description as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description> & { className?: string; children?: React.ReactNode }>;
-const _AlertDialogPrimitiveAction = AlertDialogPrimitive.Action as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> & { className?: string; children?: React.ReactNode }>;
-const _AlertDialogPrimitiveCancel = AlertDialogPrimitive.Cancel as React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel> & { className?: string; children?: React.ReactNode }>;
+// Aliases removed, will use primitives directly
 
 const AlertDialog = AlertDialogPrimitive.Root
 
@@ -22,7 +16,7 @@ const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <_AlertDialogPrimitiveOverlay
+  <AlertDialogPrimitive.Overlay // Use primitive directly
     className={cn(
       "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
@@ -38,8 +32,8 @@ const AlertDialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <AlertDialogPortal>
-    <AlertDialogOverlay /> {/* Uses the already wrapped and exported AlertDialogOverlay */}
-    <_AlertDialogPrimitiveContent
+    <AlertDialogOverlay />
+    <AlertDialogPrimitive.Content // Use primitive directly
       ref={ref}
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
@@ -83,7 +77,7 @@ const AlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <_AlertDialogPrimitiveTitle
+  <AlertDialogPrimitive.Title // Use primitive directly
     ref={ref}
     className={cn("text-lg font-semibold", className)}
     {...props}
@@ -95,7 +89,7 @@ const AlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <_AlertDialogPrimitiveDescription
+  <AlertDialogPrimitive.Description // Use primitive directly
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
@@ -108,7 +102,7 @@ const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
 >(({ className, ...props }, ref) => (
-  <_AlertDialogPrimitiveAction
+  <AlertDialogPrimitive.Action // Use primitive directly
     ref={ref}
     className={cn(buttonVariants(), className)}
     {...props}
@@ -120,7 +114,7 @@ const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
 >(({ className, ...props }, ref) => (
-  <_AlertDialogPrimitiveCancel
+  <AlertDialogPrimitive.Cancel // Use primitive directly
     ref={ref}
     className={cn(
       buttonVariants({ variant: "outline" }),

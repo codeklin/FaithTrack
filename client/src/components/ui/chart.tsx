@@ -1,6 +1,7 @@
 "use client"
 
 import * as Recharts from "recharts"
+// import type { TooltipPayload } from 'recharts'; // Placeholder: Using 'any' for now
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -112,119 +113,118 @@ const ChartTooltipContent = React.forwardRef<
       nameKey?: string;
       labelKey?: string;
       labelClassName?: string;
-      labelFormatter?: (label: string | number, payload: any[]) => React.ReactNode;
+      labelFormatter?: (label: string | number, payload: any[]) => React.ReactNode; // Using any for TooltipPayload
       formatter?: (
         value: any,
         name: string,
-        item: any,
+        item: any, // Using any for TooltipPayload
         index: number,
-        payload: any[]
+        payload: any[] // Using any for TooltipPayload
       ) => React.ReactNode;
-      color?: string; // Added color to props definition
+      color?: string;
     }
 >(
-  (
-    {
-      active,
-      payload,
-      className,
-      indicator = "dot",
-      hideLabel = false,
-      hideIndicator = false,
-      label,
-      labelFormatter,
-      labelClassName,
-      formatter,
-      color, // Now correctly typed via props
-      nameKey,
-      labelKey,
-    }: // It's better to define a type alias for these props if we were to annotate here
-    // For now, relying on inference from the forwardRef generic.
-    // If errors persist for these destructured props, we'll need explicit typing here or an alias.
-    // Restore to rely on inference from React.forwardRef generic args
-    // The props object itself (first argument to the function component)
-    // should have its type inferred from the second generic argument of forwardRef.
-    // Individual destructured properties will also be inferred.
-    {
-      active,
-      payload, // payload is any[] | undefined from TooltipProps
-      className,
-      indicator = "dot",
-      hideLabel = false,
-      hideIndicator = false,
-      label,
-      labelFormatter, // Type already defined in props
-      labelClassName,
-      formatter, // Type already defined in props
-      color,
-      nameKey,
-      labelKey,
+  (props: // Explicitly type props here
+    React.ComponentProps<typeof Recharts.Tooltip> &
+    React.ComponentProps<"div"> & {
+      hideLabel?: boolean;
+      hideIndicator?: boolean;
+      indicator?: "line" | "dot" | "dashed";
+      nameKey?: string;
+      labelKey?: string;
+      labelClassName?: string;
+      labelFormatter?: (label: string | number, payload: any[]) => React.ReactNode; // Using any for TooltipPayload
+      formatter?: (
+        value: any,
+        name: string,
+        item: any, // Using any for TooltipPayload
+        index: number,
+        payload: any[] // Using any for TooltipPayload
+      ) => React.ReactNode;
+      color?: string;
     },
-    ref: React.ForwardedRef<HTMLDivElement>
-  ) => {
-    const { config } = useChart()
+  ref: React.ForwardedRef<HTMLDivElement>
+) => {
+  const {
+    active,
+    payload,
+    className,
+    indicator = "dot",
+    hideLabel = false,
+    hideIndicator = false,
+    label,
+    labelFormatter,
+    labelClassName,
+    formatter,
+    color,
+    nameKey,
+    labelKey,
+  } = props; // Destructure from the typed props object
 
-    const tooltipLabel = React.useMemo(() => {
-      if (hideLabel || !payload?.length) {
-        return null
-      }
+  const { config } = useChart()
 
-      const [item] = payload // item is 'any' here
-      const key = `${labelKey || item?.dataKey || item?.name || "value"}`
-      const itemConfig = getPayloadConfigFromPayload(config, item, key)
-      const value =
-        !labelKey && typeof label === "string"
-          ? config[label as keyof typeof config]?.label || label
-          : itemConfig?.label
-
-      if (labelFormatter) {
-        // If item is passed to labelFormatter, its type depends on labelFormatter's signature
-        return (
-          <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value as string | number, payload as any[])}
-          </div>
-        )
-      }
-
-      if (!value) {
-        return null
-      }
-
-      return <div className={cn("font-medium", labelClassName)}>{value}</div>
-    }, [
-      label,
-      labelFormatter,
-      payload,
-      hideLabel,
-      labelClassName,
-      config,
-      labelKey,
-    ])
-
-    if (!active || !payload?.length) {
+  const tooltipLabel = React.useMemo(() => {
+    if (hideLabel || !payload?.length) {
       return null
     }
 
-    const nestLabel = payload.length === 1 && indicator !== "dot"
+    const [item] = payload
+    const key = `${labelKey || item?.dataKey || item?.name || "value"}`
+    // Ensure item is not undefined before passing to getPayloadConfigFromPayload
+    const itemConfig = item ? getPayloadConfigFromPayload(config, item, key) : undefined;
+    const value =
+      !labelKey && typeof label === "string"
+        ? config[label as keyof typeof config]?.label || label
+        : itemConfig?.label
 
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
-          className
-        )}
-      >
-        {!nestLabel ? tooltipLabel : null}
-        <div className="grid gap-1.5">
-          {payload.map((item: any, index: number) => { // Explicitly type item and index here
-            const key = `${nameKey || item.name || item.dataKey || "value"}`
-            const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+    if (labelFormatter) {
+      return (
+        <div className={cn("font-medium", labelClassName)}>
+          {labelFormatter(value as string | number, payload as any[])}
+        </div>
+      )
+    }
 
-            return (
-              <div
-                key={String(item.dataKey || index)}
+    if (!value) {
+      return null
+    }
+
+    return <div className={cn("font-medium", labelClassName)}>{value}</div>
+  }, [
+    label,
+    labelFormatter,
+    payload,
+    hideLabel,
+    labelClassName,
+    config,
+    labelKey,
+  ])
+
+  if (!active || !payload?.length) {
+    return null
+  }
+
+  const nestLabel = payload.length === 1 && indicator !== "dot"
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        className
+      )}
+    >
+      {!nestLabel ? tooltipLabel : null}
+      <div className="grid gap-1.5">
+        {payload.map((item, index) => { // item type is inferred from payload (TooltipPayload[])
+          const key = `${nameKey || item.name || item.dataKey || "value"}`
+          const itemConfig = getPayloadConfigFromPayload(config, item, key)
+          const indicatorColor = color || item.payload?.fill || item.color
+
+
+          return (
+            <div
+              key={String(item.dataKey || item.name || index)} // Use item.name as part of key
                 className={cn(
                   "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
                   indicator === "dot" && "items-center"
@@ -235,7 +235,8 @@ const ChartTooltipContent = React.forwardRef<
                     Array.isArray(item.value) ? [...item.value] as (string | number)[] : item.value as string | number,
                     item.name,
                     item,
-                    index
+                    index,
+                    payload // Added missing payload argument
                   )
                 ) : (
                   <>

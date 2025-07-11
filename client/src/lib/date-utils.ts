@@ -1,31 +1,22 @@
-import { Timestamp } from 'firebase/firestore';
+// import { Timestamp } from 'firebase/firestore'; // Firebase Timestamp type
 
 /**
- * Converts a Date or Firestore Timestamp to a JavaScript Date object
+ * Converts a Date, string, or number to a JavaScript Date object.
+ * Handles ISO 8601 strings (used by Supabase) and numeric timestamps.
  */
-export function toDate(value: Date | Timestamp | string | number): Date {
+export function toDate(value: Date | string | number): Date {
   if (value instanceof Date) {
     return value;
   }
   
-  if (value && typeof value === 'object' && 'toDate' in value) {
-    // Firestore Timestamp
-    return value.toDate();
-  }
-  
-  if (value && typeof value === 'object' && '_seconds' in value) {
-    // Firestore Timestamp serialized format
-    return new Date((value as any)._seconds * 1000);
-  }
-  
-  // String or number
+  // String (ISO 8601 or other parsable date strings) or number (timestamp)
   return new Date(value);
 }
 
 /**
- * Safely formats a date value that might be a Date or Timestamp
+ * Safely formats a date value that might be a Date, string, or number.
  */
-export function formatDate(value: Date | Timestamp | string | number | undefined, fallback: string = 'N/A'): string {
+export function formatDate(value: Date | string | number | undefined, fallback: string = 'N/A'): string {
   if (!value) return fallback;
   
   try {
@@ -37,16 +28,20 @@ export function formatDate(value: Date | Timestamp | string | number | undefined
 }
 
 /**
- * Converts a date value to ISO string for input fields
+ * Converts a date value to a string suitable for datetime-local input fields.
  */
-export function toInputValue(value: Date | Timestamp | string | number | undefined): string {
+export function toInputValue(value: Date | string | number | undefined): string {
   if (!value) return '';
   
   try {
     const date = toDate(value);
+    // Ensure the date is valid before trying to convert to ISO string
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date value');
+    }
     return date.toISOString().slice(0, 16); // Format for datetime-local input
   } catch (error) {
-    console.warn('Error converting to input value:', error);
+    console.warn('Error converting to input value:', error, 'Original value:', value);
     return '';
   }
 }
