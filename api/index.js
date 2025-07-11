@@ -25,7 +25,15 @@ app.get("/api/users", async (req, res) => {
     }
     res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Log the full error for debugging on the server
+    console.error('Error fetching users:', error);
+
+    // Send a more structured error response to the client
+    res.status(error.code ? 400 : 500).json({
+      message: error.message,
+      details: error.details,
+      code: error.code,
+    });
   }
 });
 var index_default = app;
