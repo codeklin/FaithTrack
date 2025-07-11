@@ -22,6 +22,11 @@ if (!admin.apps.length) {
     });
   } else {
     // For development without credentials, use project ID only
+    console.warn(
+      'Firebase Admin SDK: Initializing without explicit service account credentials. ' +
+      'Using projectId only. This requires Application Default Credentials to be configured ' +
+      'for Firestore access in this environment, or use of Firebase emulators.'
+    );
     admin.initializeApp({
       projectId: process.env.FIREBASE_PROJECT_ID || 'demo-churchcare',
     });

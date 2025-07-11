@@ -46,8 +46,32 @@ app.use('/api', (req, res, next) => {
   // Logic for starting the server (app.listen) is removed for Vercel.
   // Vercel will use the exported app as a handler.
   // The setupVite and serveStatic calls are also removed as Vercel handles static assets.
+
+  // Local development server logic
+  if (process.env.NODE_ENV === 'development') {
+    const PORT = process.env.PORT || 3000;
+    try {
+      await setupVite(app); // Setup Vite middleware
+      serveStatic(app); // Serve static assets
+
+      // Final catch-all error handler for API routes - already present above, but ensure it's effective.
+      // Re-adding it here scoped to dev if needed, but the global one should be fine.
+
+      app.listen(PORT, () => {
+        log(`Server listening on port ${PORT}`);
+        console.log(`🚀 Server is running at http://localhost:${PORT}`);
+        console.log('Development server configured and started.');
+      });
+    } catch (e) {
+      console.error('Failed to start development server:', e);
+      process.exit(1);
+    }
+  }
 })().catch(error => {
-  console.error('Failed to initialize app for Vercel:', error);
+  console.error('Failed to initialize app:', error);
+  if (process.env.NODE_ENV === 'development') {
+    process.exit(1); // Exit in dev if initialization fails
+  }
   // In a serverless environment, process.exit might not be appropriate.
   // Let the error propagate or handle it as Vercel expects.
 });

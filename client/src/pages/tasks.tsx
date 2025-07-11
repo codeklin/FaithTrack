@@ -89,7 +89,7 @@ export default function Tasks() {
                 <TabsContent value="urgent" className="mt-6">
                   <div className="space-y-4">
                     {urgentTasks?.length ? (
-                      urgentTasks.map((task) => (
+                      urgentTasks.map((task: Task) => (
                         <TaskCard key={task.id} task={task} showMember />
                       ))
                     ) : (
@@ -101,7 +101,7 @@ export default function Tasks() {
                 <TabsContent value="pending" className="mt-6">
                   <div className="space-y-4">
                     {pendingTasks?.length ? (
-                      pendingTasks.map((task) => (
+                      pendingTasks.map((task: Task) => (
                         <TaskCard key={task.id} task={task} showMember />
                       ))
                     ) : (
@@ -113,7 +113,7 @@ export default function Tasks() {
                 <TabsContent value="completed" className="mt-6">
                   <div className="space-y-4">
                     {completedTasks.length ? (
-                      completedTasks.map((task) => (
+                      completedTasks.map((task: Task) => (
                         <TaskCard key={task.id} task={task} showMember />
                       ))
                     ) : (
@@ -125,7 +125,7 @@ export default function Tasks() {
                 <TabsContent value="all" className="mt-6">
                   <div className="space-y-4">
                     {allTasks?.length ? (
-                      allTasks.map((task) => (
+                      allTasks.map((task: Task) => (
                         <TaskCard key={task.id} task={task} showMember />
                       ))
                     ) : (
