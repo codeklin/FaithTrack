@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, UserPlus, Search } from "lucide-react";
+import { apiRequest } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import DesktopSidebar from "@/components/layout/desktop-sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
@@ -40,6 +41,7 @@ export default function Members() {
 
   const { data: members, isLoading } = useQuery<Member[]>({
     queryKey: ["/api/members"],
+    queryFn: () => apiRequest("GET", "/api/members"),
     enabled: !!currentUser,
   });
 
