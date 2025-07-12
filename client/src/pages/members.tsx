@@ -39,6 +39,10 @@ export default function Members() {
   const [searchTerm, setSearchTerm] = useState("");
   const { currentUser } = useAuth();
 
+
+  console.log("currentUser", currentUser);
+
+
   const { data: members, isLoading, error } = useQuery<Member[]>({
     queryKey: ["/api/members"],
     queryFn: () => apiRequest("GET", "/api/members"),
