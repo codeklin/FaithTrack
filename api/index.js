@@ -3,11 +3,8 @@ import express from "express";
 
 // server/supabase.ts
 import { createClient } from "@supabase/supabase-js";
-if (process.env.NODE_ENV !== 'production') {
-  const dotenv = await import('dotenv');
-  dotenv.config({ path: ".env" });
-}
-
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
 var supabaseUrl = process.env.VITE_SUPABASE_URL;
 var supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseUrl || !supabaseServiceKey) {
@@ -28,15 +25,56 @@ app.get("/api/users", async (req, res) => {
     }
     res.status(200).json(data);
   } catch (error) {
-    // Log the full error for debugging on the server
-    console.error('Error fetching users:', error);
-
-    // Send a more structured error response to the client
-    res.status(error.code ? 400 : 500).json({
-      message: error.message,
-      details: error.details,
-      code: error.code,
-    });
+    res.status(500).json({ error: error.message });
+  }
+});
+app.get("/api/stats", async (req, res) => {
+  try {
+    console.log(`GET /api/stats called`);
+    res.status(200).json({ message: "Endpoint /api/stats reached successfully", data: { totalMembers: 0, activeTasks: 0, completedTasks: 0 } });
+  } catch (error) {
+    console.error("Error in /api/stats:", error);
+    res.status(500).json({ error: "Failed to process /api/stats" });
+  }
+});
+app.get("/api/tasks/urgent", async (req, res) => {
+  try {
+    console.log(`GET /api/tasks/urgent called`);
+    res.status(200).json({ message: "Endpoint /api/tasks/urgent reached successfully", data: [] });
+  } catch (error) {
+    console.error("Error in /api/tasks/urgent:", error);
+    res.status(500).json({ error: "Failed to process /api/tasks/urgent" });
+  }
+});
+app.get("/api/members", async (req, res) => {
+  try {
+    console.log(`GET /api/members called`);
+    res.status(200).json({ message: "Endpoint /api/members reached successfully", data: [] });
+  } catch (error) {
+    console.error("Error in /api/members:", error);
+    res.status(500).json({ error: "Failed to process /api/members" });
+  }
+});
+app.get("/api/members/recent", async (req, res) => {
+  try {
+    console.log(`GET /api/members/recent called`);
+    res.status(200).json({ message: "Endpoint /api/members/recent reached successfully", data: [] });
+  } catch (error) {
+    console.error("Error in /api/members/recent:", error);
+    res.status(500).json({ error: "Failed to process /api/members/recent" });
+  }
+});
+app.get("/api/stats", async (req, res) => {
+  try {
+    const placeholderStats = {
+      totalMembers: 0,
+      activeTasks: 0,
+      completedTasks: 0
+    };
+    res.status(200).json(placeholderStats);
+  } catch (error) {
+    console.error("Error fetching /api/stats:", error);
+    res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
 var index_default = app;
