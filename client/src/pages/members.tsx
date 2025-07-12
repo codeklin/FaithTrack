@@ -39,17 +39,33 @@ export default function Members() {
   const [searchTerm, setSearchTerm] = useState("");
   const { currentUser } = useAuth();
 
-  const { data: members, isLoading } = useQuery<Member[]>({
+  const { data: members, isLoading, error } = useQuery<Member[]>({
     queryKey: ["/api/members"],
     queryFn: () => apiRequest("GET", "/api/members"),
     enabled: !!currentUser,
   });
 
-  const filteredMembers = members?.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  // If currentUser is null, show a loading spinner or a message
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
+  // If there's an error and user is logged in, display an error message
+  // This handles cases where the API might return an error even if the user is authenticated
+  if (error) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center">
+        <p className="text-red-500 mb-4">Error fetching members. Please try again later.</p>
+        {/* Optionally, provide a way to retry or log out */}
+      </div>
+    );
+  }
+
+  // If still loading and user is logged in (and no error yet), show loading spinner
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center">
@@ -57,6 +73,11 @@ export default function Members() {
       </div>
     );
   }
+
+  const filteredMembers = members?.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  ) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
