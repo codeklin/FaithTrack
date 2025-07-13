@@ -28,24 +28,22 @@ export default function DesktopSidebar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.name} href={item.href}>
-                <a className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
-                  item.current 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                }`}>
-                  <Icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                  {item.badge && (
-                    <span className={`text-xs rounded-full px-2 py-1 ml-auto ${
-                      item.notification 
-                        ? 'bg-amber-600 text-white notification-badge' 
-                        : 'bg-green-600 text-white'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </a>
+              <Link key={item.name} href={item.href} className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                item.current
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              }`}>
+                <Icon className="w-5 h-5" />
+                <span>{item.name}</span>
+                {item.badge && (
+                  <span className={`text-xs rounded-full px-2 py-1 ml-auto ${
+                    item.notification
+                      ? 'bg-amber-600 text-white notification-badge'
+                      : 'bg-green-600 text-white'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
