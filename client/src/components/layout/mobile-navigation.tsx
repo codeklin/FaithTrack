@@ -22,20 +22,22 @@ export default function MobileNavigation({ activeTab }: MobileNavigationProps) {
           const isActive = activeTab === item.id;
           
           return (
-            <Link key={item.name} href={item.href} className={`flex flex-col items-center space-y-1 p-2 relative ${
-              isActive ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
-            }`}>
-              <Icon className="w-6 h-6" />
-              <span className="text-xs font-medium">{item.name}</span>
-              {item.badge && (
-                <span className={`absolute -top-1 -right-1 text-xs rounded-full w-5 h-5 flex items-center justify-center ${
-                  item.notification
-                    ? 'bg-amber-600 text-white notification-badge'
-                    : 'bg-green-600 text-white'
-                }`}>
-                  {item.badge}
-                </span>
-              )}
+            <Link key={item.name} href={item.href}>
+              <span className={`flex flex-col items-center space-y-1 p-2 relative ${
+                isActive ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
+              }`}>
+                <Icon className="w-6 h-6" />
+                <span className="text-xs font-medium">{item.name}</span>
+                {item.badge && (
+                  <span className={`absolute -top-1 -right-1 text-xs rounded-full w-5 h-5 flex items-center justify-center ${
+                    item.notification
+                      ? 'bg-amber-600 text-white notification-badge'
+                      : 'bg-green-600 text-white'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </span>
             </Link>
           );
         })}
