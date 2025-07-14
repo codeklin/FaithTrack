@@ -64,19 +64,6 @@ app.get("/api/members/recent", async (req, res) => {
     res.status(500).json({ error: "Failed to process /api/members/recent" });
   }
 });
-app.get("/api/stats", async (req, res) => {
-  try {
-    const placeholderStats = {
-      totalMembers: 0,
-      activeTasks: 0,
-      completedTasks: 0
-    };
-    res.status(200).json(placeholderStats);
-  } catch (error) {
-    console.error("Error fetching /api/stats:", error);
-    res.status(500).json({ error: "Failed to fetch stats" });
-  }
-});
 var index_default = app;
 export {
   index_default as default
