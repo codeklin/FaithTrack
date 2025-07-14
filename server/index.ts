@@ -31,45 +31,21 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
-// --- ADDED GENERIC PLACEHOLDER ROUTES ---
-app.get('/api/tasks/urgent', async (req, res) => {
-  try {
-    // TODO: Replace with actual logic to fetch urgent tasks
-    console.log(`GET /api/tasks/urgent called`);
-    res.status(200).json({ message: "Endpoint /api/tasks/urgent reached successfully", data: [] });
-  } catch (error: any) {
-    console.error('Error in /api/tasks/urgent:', error);
-    res.status(500).json({ error: 'Failed to process /api/tasks/urgent' });
-  }
-});
+function createPlaceholderRoute(path: string, data: any = []) {
+  app.get(path, async (req, res) => {
+    try {
+      console.log(`GET ${path} called`);
+      res.status(200).json({ message: `Endpoint ${path} reached successfully`, data });
+    } catch (error: any) {
+      console.error(`Error in ${path}:`, error);
+      res.status(500).json({ error: `Failed to process ${path}` });
+    }
+  });
+}
 
-app.get('/api/members', async (req, res) => {
-  try {
-    // TODO: Replace with actual logic to fetch members
-    console.log(`GET /api/members called`);
-    res.status(200).json({ message: "Endpoint /api/members reached successfully", data: [] });
-  } catch (error: any) {
-    console.error('Error in /api/members:', error);
-    res.status(500).json({ error: 'Failed to process /api/members' });
-  }
-});
-
-app.get('/api/members/recent', async (req, res) => {
-  try {
-    // TODO: Replace with actual logic to fetch recent members
-    console.log(`GET /api/members/recent called`);
-    res.status(200).json({ message: "Endpoint /api/members/recent reached successfully", data: [] });
-  } catch (error: any) {
-    console.error('Error in /api/members/recent:', error);
-    res.status(500).json({ error: 'Failed to process /api/members/recent' });
-  }
-});
-
-// TODO: Add other missing routes here, for example:
-// app.get('/api/tasks/urgent', async (req, res) => { /* ... your logic ... */ });
-// app.get('/api/members', async (req, res) => { /* ... your logic ... */ });
-// app.get('/api/members/recent', async (req, res) => { /* ... your logic ... */ });
-// etc.
+createPlaceholderRoute('/api/tasks/urgent', []);
+createPlaceholderRoute('/api/members', []);
+createPlaceholderRoute('/api/members/recent', []);
 
 
 // Vercel will use this exported app
