@@ -65,22 +65,6 @@ app.get('/api/members/recent', async (req, res) => {
   }
 });
 
-// --- ADDED PLACEHOLDER ROUTE ---
-app.get('/api/stats', async (req, res) => {
-  try {
-    // TODO: Replace with actual logic to fetch stats
-    const placeholderStats = {
-      totalMembers: 0,
-      activeTasks: 0,
-      completedTasks: 0,
-    };
-    res.status(200).json(placeholderStats);
-  } catch (error: any) {
-    console.error('Error fetching /api/stats:', error); // Log the error server-side
-    res.status(500).json({ error: 'Failed to fetch stats' });
-  }
-});
-
 // TODO: Add other missing routes here, for example:
 // app.get('/api/tasks/urgent', async (req, res) => { /* ... your logic ... */ });
 // app.get('/api/members', async (req, res) => { /* ... your logic ... */ });
