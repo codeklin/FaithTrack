@@ -12,10 +12,11 @@ app.get('/api/users', async (req, res) => {
     if (error) {
       throw error;
     }
-
     res.status(200).json(data);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) { // Use unknown for better type safety
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "An unknown error occurred",
+    });
   }
 });
 
@@ -31,14 +32,36 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
+
+// --- ADD THIS NEW ENDPOINT ---
+app.get('/api/pastors', async (req, res) => {
+  try {
+    // Fetch all records from the 'pastors' table
+    const { data, error } = await supabase.from('pastors').select('id, name');
+
+    if (error) {
+      // If Supabase returns an error, send it back
+      throw error;
+    }
+    // Send the list of pastors back to the client
+    res.status(200).json(data);
+  } catch (error: unknown) { // Use unknown for better type safety
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
 function createPlaceholderRoute(path: string, data: any = []) {
   app.get(path, async (req, res) => {
     try {
       console.log(`GET ${path} called`);
       res.status(200).json({ message: `Endpoint ${path} reached successfully`, data });
-    } catch (error: any) {
+    } catch (error: unknown) { // Use unknown for better type safety
       console.error(`Error in ${path}:`, error);
-      res.status(500).json({ error: `Failed to process ${path}` });
+      res.status(500).json({
+        error: error instanceof Error ? `Failed to process ${path}: ${error.message}` : `Failed to process ${path}`,
+      });
     }
   });
 }

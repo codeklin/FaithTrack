@@ -64,6 +64,17 @@ app.get("/api/members/recent", async (req, res) => {
     res.status(500).json({ error: "Failed to process /api/members/recent" });
   }
 });
+app.get("/api/pastors", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("pastors").select("id, name");
+    if (error) {
+      throw error;
+    }
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 var index_default = app;
 export {
   index_default as default
